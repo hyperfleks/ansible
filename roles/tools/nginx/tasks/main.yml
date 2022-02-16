@@ -96,7 +96,7 @@
    - nginx
   file:
     state: absent
-    dest: /etc/nginx/conf.d/default.conf
+    dest: /etc/nginx/sites-enabled/default
 
 - name: "set cors server"
   tags:
