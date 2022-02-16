@@ -1,0 +1,6 @@
+{{ app_name }}
+{% if celery_units is defined %}
+{% for celery in celery_units %}
+{{ app_name }}-{{ celery }}
+{% endfor %}
+{% endif %}

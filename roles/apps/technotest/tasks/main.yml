@@ -1,0 +1,131 @@
+---
+- name: "set nginx conf"
+  tags:
+   - app
+   - init
+   - config
+  when: domain is defined
+  template:
+    src: "nginx.j2"
+    dest: "/etc/nginx/conf.d/{{ domain }}"
+  notify:
+   - "reload nginx"
+
+- name: "set nginx enabled link"
+  tags:
+   - app
+   - init
+  when: domain is defined
+  ignore_errors: "{{ ansible_check_mode }}"
+  file:
+    state: link
+    src: "/etc/nginx/conf.d/{{ domain }}"
+    dest: "/etc/nginx/conf.d.enabled/{{ domain }}"
+  notify:
+   - "reload nginx"
+
+- name: "set ssl certificates"
+  tags:
+   - app
+   - init
+   - certs
+  copy:
+    src: "certs/{{ item }}"
+    dest: "/etc/nginx/ssl/"
+    mode: 0400
+    owner: root
+    group: root
+  with_items:
+   - wildcard.tech-mail.ru.crt
+   - wildcard.tech-mail.ru.key
+  notify:
+    - "reload nginx"
+
+- name: "install rpm"
+  ignore_errors: "{{ ansible_check_mode }}"
+  tags:
+   - app
+   - init
+   - release
+  yum:
+    name: "{{ actual_package }}"
+    state: present
+    update_cache: yes
+  notify:
+   - "restart gunicorn"
+   - "restart celery"
+
+- name: "migrate db"
+  tags:
+   - app
+   - init
+   - release
+  ignore_errors: "{{ ansible_check_mode }}"
+  command: "{{ app_name }} migrate"
+  when: migrate is defined and migrate
+
+- name: "set project config"
+  tags:
+   - app
+   - init
+   - config
+  template:
+    src: "{{ app_name }}.j2"
+    dest: "/etc/{{ app_name }}/{{ app_name }}.conf"
+  notify:
+   - "restart gunicorn"
+   - "restart celery"
+
+- name: "set gunicorn config"
+  tags:
+   - app
+   - init
+   - config
+  template:
+    src: gunicorn.j2
+    dest: "/etc/{{ app_name }}/gunicorn.conf"
+  notify:
+   - "restart gunicorn"
+
+- name: "enable and start gunicorn"
+  tags:
+   - app
+   - init
+  systemd:
+    daemon_reload: yes
+    name: "{{ app_name }}-gunicorn"
+    enabled: yes
+    state: started
+
+- name: "enable and start celery"
+  when: celery_units is defined
+  tags:
+   - app
+   - init
+  systemd:
+    daemon_reload: yes
+    name: "{{ app_name }}-{{ item }}"
+    enabled: yes
+    state: started
+  with_items: "{{ celery_units }}"
+
+- name: "set media dir"
+  tags:
+   - app
+   - init
+  file:
+    state: directory
+    dest: "/media/{{ app_name }}"
+    mode: "{{ media_mode|default('0755') }}"
+    owner: "{{ app_name }}"
+    group: "{{ app_name }}"
+
+- name: "set systemd units monitoring"
+  tags:
+    - app
+    - init
+    - zabbix
+  template:
+    src: units.j2
+    dest: "/etc/zabbix/zabbix_agentd.d/projects-units/{{ app_name }}.txt"
+

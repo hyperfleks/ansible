@@ -1,0 +1,33 @@
+app_name: rhc
+gunicorn_port: 37125
+domain: highloadcup.ru
+app_email: no-reply@highloadcup.ru
+
+media_dir: /media/rhc
+
+secret_key: "{{ rhc_vault_secret_key }}"
+storage_key: "{{ rhc_vault_storage_key }}"
+unsubscribe_token: "{{ rhc_vault_unsubscribe_token }}"
+
+database_host: 127.0.0.1
+database_user: rhc
+database_password: "{{ rhc_vault_database_password }}"
+
+email_host: mxx.tp.smailru.net
+email_port: 25
+
+celery_broker_url: redis://localhost:6379/1
+
+vk_app_id: "{{ rhc_vault_vk_app_id }}"
+vk_secret: "{{ rhc_vault_vk_secret }}"
+fb_app_id: "{{ rhc_vault_fb_app_id }}"
+fb_secret: "{{ rhc_vault_fb_secret }}"
+it_mail_key: "{{ rhc_vault_it_mail_key }}"
+it_mail_secret: "{{ rhc_vault_it_mail_secret }}"
+
+storage_app_id: "{{ rhc_vault_storage_app_id }}"
+storage_app_secret: "{{ rhc_vault_storage_secret }}"
+hub_app_id: "{{ rhc_vault_hub_app_id }}"
+hub_app_secret: "{{ rhc_vault_hub_secret }}"
+
+cups_api_token: "{{ rhc_vault_cups_token }}"

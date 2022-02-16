@@ -1,0 +1,411 @@
+limit_req_zone $binary_remote_addr zone=mainperip:10m rate=10r/s;
+
+{% if enable_upstream is defined and enable_upstream%}
+upstream gtp {
+    server 127.0.0.1:{{ gunicorn_port }} max_fails=5 fail_timeout=30s;
+
+    {% for host in groups[main_group] %}{% if inventory_hostname != host %}
+
+    server {{ hostvars[host]['ansible_host'] }}:{{ gunicorn_port }}  max_fails=5 fail_timeout=30s;
+
+    {% endif %}{% endfor %}
+
+    least_conn;
+}
+{% endif %}
+################
+##### HTTP
+
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      close;
+}
+
+server {
+    listen 80;
+    server_name gtp.tech-mail.ru;
+    return 302 https://gtp.tech-mail.ru$request_uri;
+}
+
+server {
+    listen 80;
+    server_name park.mail.ru;
+    return 302 https://park.mail.ru$request_uri;
+}
+
+server {
+    listen 80;
+    server_name vgu.sphere.mail.ru;
+    return 302 https://vgu.sphere.mail.ru$request_uri;
+}
+
+server {
+    listen 80;
+    server_name pgu.sphere.mail.ru;
+    return 302 https://pgu.sphere.mail.ru$request_uri;
+}
+
+server {
+    listen 80;
+    server_name sphere.mail.ru;
+    return 302 https://sphere.mail.ru$request_uri;
+}
+
+server {
+    listen 80;
+    server_name track.mail.ru;
+    return 302 https://track.mail.ru$request_uri;
+}
+
+server {
+    listen 80;
+    server_name atom.mail.ru;
+    return 302 https://technoatom.mail.ru$request_uri;
+}
+
+server {
+    listen 80;
+    server_name technoatom.mail.ru;
+    return 302 https://technoatom.mail.ru$request_uri;
+}
+
+server {
+    listen 80;
+    server_name polis.mail.ru;
+    return 302 https://polis.mail.ru$request_uri;
+}
+
+server {
+    listen 80;
+    server_name tech-coll.ru;
+    return 404;
+}
+
+server {
+    listen 80;
+    server_name edu.tech-mail.ru;
+    return 302 https://edu.tech-mail.ru$request_uri;
+}
+
+server {
+    listen 80;
+    server_name digital-camp.ru;
+    return 302 https://digital-camp.ru$request_uri;
+}
+
+server {
+    listen 80;
+    server_name pm.mail.ru;
+    return 302 https://pm.mail.ru$request_uri;
+}
+
+server {
+    listen 80;
+    server_name made.mail.ru;
+    return 302 https://made.mail.ru$request_uri;
+}
+
+server {
+    listen 80;
+    server_name data.mail.ru;
+
+    location / {
+        return 302 https://data.mail.ru$request_uri;
+    }
+    location = /mailru-domain6FM1lMYhdy5hmUdy.html {
+        rewrite ^/(.*)  $1;
+        return 200 "mailru-domain: 6FM1lMYhdy5hmUdy";
+    }
+}
+
+server {
+    listen 80;
+    server_name mailcourses.ru;
+
+    location / {
+        return 302 https://mailcourses.ru$request_uri;
+    }
+
+    location = /mailru-domainwYiQOFkoU98SoOQc.html {
+        rewrite ^/(.*)  $1;
+        return 200 "mailru-domain: wYiQOFkoU98SoOQc";
+    }
+
+    location = /mailru-verification39f5fb77c67f09b6.html {
+        rewrite ^/(.*)  $1;
+        return 200 "mailru-verification: 39f5fb77c67f09b6";
+    }
+}
+
+###############
+##### SSL
+
+server {
+    listen 443 ssl;
+    server_name gtp.tech-mail.ru;
+
+    include /etc/nginx/xssl.conf;
+    include /etc/nginx/xbase.conf;
+    include /etc/nginx/xlocations_short.conf;
+}
+
+server {
+    listen 443 ssl;
+    server_name park.mail.ru;
+
+    include /etc/nginx/xssl_cups.conf;
+    include /etc/nginx/xbase.conf;
+    include /etc/nginx/xlocations_short.conf;
+
+    location = /mailru-verificationbc62dd464e876d02.html {
+        rewrite ^/(.*)  $1;
+        return 200 "mailru-verification: bc62dd464e876d02";
+    }
+    location = /yandex_cd0918450d0f8a34.html {
+        rewrite ^/(.*)  $1;
+        return 200 "Verification: cd0918450d0f8a34";
+    }
+
+    location /itday {
+        alias /opt/itday;
+        index index.html;
+        access_log /var/log/nginx/itday.log timed;
+    }
+    location /itday/css {
+        alias /opt/itday/css;
+        access_log off;
+    }
+    location /itday/fonts {
+        alias /opt/itday/fonts;
+        access_log off;
+    }
+    location /itday/images {
+        alias /opt/itday/images;
+        access_log off;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name vgu.sphere.mail.ru;
+
+    include /etc/nginx/xssl_cups.conf;
+    include /etc/nginx/xbase.conf;
+    include /etc/nginx/xlocations_short.conf;
+}
+
+server {
+    listen 443 ssl;
+    server_name pgu.sphere.mail.ru;
+
+    include /etc/nginx/xssl_cups.conf;
+    include /etc/nginx/xbase.conf;
+    include /etc/nginx/xlocations_short.conf;
+}
+
+server {
+    listen 443 ssl;
+    server_name sphere.mail.ru;
+
+    include /etc/nginx/xssl_cups.conf;
+    include /etc/nginx/xbase.conf;
+    include /etc/nginx/xlocations_short.conf;
+
+    location = /mailru-verificationa9d48398720d0739.html {
+        rewrite ^/(.*)  $1;
+        return 200 "mailru-verification: a9d48398720d0739";
+    }
+    location = /yandex_bfb12dc038681f9c.html {
+        rewrite ^/(.*)  $1;
+        return 200 "Verification: bfb12dc038681f9c";
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name track.mail.ru;
+
+    include /etc/nginx/xssl_cups.conf;
+    include /etc/nginx/xbase.conf;
+    include /etc/nginx/xlocations_short.conf;
+
+    location = /mailru-verification107e0c89a7318cad.html {
+        rewrite ^/(.*)  $1;
+        return 200 "mailru-verification: 107e0c89a7318cad";
+    }
+    location = /yandex_470935836547dbf1.html {
+        rewrite ^/(.*)  $1;
+        return 200 "Verification: 470935836547dbf1";
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name atom.mail.ru;
+
+    include /etc/nginx/xssl_cups.conf;
+    return 302 https://technoatom.mail.ru$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name technoatom.mail.ru;
+
+    include /etc/nginx/xssl_technoatom.conf;
+    include /etc/nginx/xbase.conf;
+    include /etc/nginx/xlocations_short.conf;
+
+    location = /mailru-domainaOOXXcXkf8GNNnZo.html {
+        rewrite ^/(.*)  $1;
+        return 200 "mailru-domain: aOOXXcXkf8GNNnZo";
+    }
+
+    location = /mailru-verificationc9e674aa0a294d7f.html {
+        rewrite ^/(.*)  $1;
+        return 200 "mailru-verification: c9e674aa0a294d7f";
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name polis.mail.ru;
+
+    include /etc/nginx/xssl_cups.conf;
+    include /etc/nginx/xbase.conf;
+    include /etc/nginx/xlocations_short.conf;
+
+    location = /mailru-verificatione63a90d4ba2f9772.html {
+        rewrite ^/(.*)  $1;
+        return 200 "mailru-verification: e63a90d4ba2f9772";
+    }
+    location = /yandex_059ac4d652d55d2b.html {
+        rewrite ^/(.*)  $1;
+        return 200 "Verification: 059ac4d652d55d2b";
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name tech-coll.ru;
+    return 404;
+}
+
+server {
+    listen 443 ssl;
+    server_name edu.tech-mail.ru;
+
+    include /etc/nginx/xssl.conf;
+    include /etc/nginx/xbase.conf;
+    include /etc/nginx/xlocations_short.conf;
+}
+
+server {
+    listen 443 ssl;
+    server_name digital-camp.ru;
+
+    include /etc/nginx/xssl_dcamp.conf;
+    include /etc/nginx/xbase.conf;
+    include /etc/nginx/xlocations_short.conf;
+
+    location = /mailru-domainVlbdKqptJlLH7rwx.html {
+        rewrite ^/(.*)  $1;
+        return 200 "mailru-domain: VlbdKqptJlLH7rwx";
+    }
+
+    location = /mailru-verificationccaa8e5251d2d0f0.html {
+        rewrite ^/(.*)  $1;
+        return 200 "mailru-verification: ccaa8e5251d2d0f0";
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name pm.mail.ru;
+
+    location /people/ { return 404; }
+    location /alumni/ { return 404; }
+    location /profile/ { return 404; }
+    location /friends/ { return 404; }
+    location /talk/ { return 404; }
+
+    location /feed/ { return 404; }
+    location /bugreport/ { return 404; }
+    location /search/ { return 404; }
+    location /favourites/ { return 404; }
+    location /news/ { return 404; }
+
+    location /attendance/ { return 404; }
+    location /schedule/responses/ { return 404; }
+    location /career/ { return 404; }
+    location /wiki/ { return 404; }
+
+    location /excursions/ { return 404; }
+    location /events/ { return 404; }
+    location /notifications/ { return 404; }
+    location /achievements/ { return 404; }
+    location /social/ { return 404; }
+
+    include /etc/nginx/xssl_made.conf;
+    include /etc/nginx/xbase.conf;
+    include /etc/nginx/xlocations_short.conf;
+
+    location = /mailru-domainRq5zuihC0vsIyGQa.html {
+        rewrite ^/(.*)  $1;
+        return 200 "mailru-domain: Rq5zuihC0vsIyGQa";
+    }
+
+    location = /mailru-verification84d4355b783fd26b.html {
+        rewrite ^/(.*)  $1;
+        return 200 "mailru-verification: 84d4355b783fd26b";
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name made.mail.ru;
+
+    include /etc/nginx/xssl_made.conf;
+
+    #location / {
+    #    return 302 https://made.mail.ru$request_uri;
+    #}
+
+    location = /mailru-domain5Lg4WEu8W4W8EnC9.html {
+        rewrite ^/(.*)  $1;
+        return 200 "mailru-domain: 5Lg4WEu8W4W8EnC9";
+    }
+
+    root /opt/made;
+
+    location / {
+        index index.html;
+        access_log /var/log/nginx/made-landing.log timed;
+    }
+    location /css {
+        access_log off;
+    }
+    location /js {
+        access_log off;
+    }
+    location /img {
+        access_log off;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name data.mail.ru;
+
+    include /etc/nginx/xssl_made.conf;
+    include /etc/nginx/xbase.conf;
+    include /etc/nginx/xlocations_short.conf;
+}
+
+server {
+    listen 443 ssl;
+    server_name mailcourses.ru;
+
+    include /etc/nginx/xssl_mailcourses.conf;
+    include /etc/nginx/xbase.conf;
+    include /etc/nginx/xlocations_short.conf;
+}

@@ -1,0 +1,33 @@
+---
+- name: "if netdata already installed"
+  command: systemctl status netdata
+  ignore_errors: yes
+  changed_when: false
+  register: service_netdata_status
+
+- name: "download netdata script from their site"
+  get_url:
+    url: https://my-netdata.io/kickstart.sh
+    dest: /tmp/kickstart.sh
+    mode: 0777
+  when: service_netdata_status is failed
+
+- name: "execute the netdata script"
+  command: sh /tmp/kickstart.sh --dont-wait
+  when: service_netdata_status is failed
+
+- name: "put netdata"
+  tags:
+    - netdata
+  template:
+    src: netdata.j2
+    dest: /etc/netdata/netdata.conf
+  notify: "restart netdata"
+
+- name: "put netdata stream"
+  tags:
+    - netdata
+  template:
+    src: stream.j2
+    dest: /etc/netdata/stream.conf
+  notify: "restart netdata"

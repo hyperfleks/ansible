@@ -1,0 +1,48 @@
+---
+- name: "set nginx config"
+  tags:
+    - webdav
+    - config
+  template:
+    src: nginx.j2
+    dest: "/etc/nginx/conf.d/{{ domain }}"
+  notify:
+    - "reload nginx"
+
+- name: "set enabled link"
+  tags:
+    - webdav
+    - config
+  ignore_errors: "{{ ansible_check_mode }}"
+  file:
+    state: link
+    src: "/etc/nginx/conf.d/{{ domain }}"
+    dest: "/etc/nginx/conf.d.enabled/{{ domain }}"
+  notify:
+    - "reload nginx"
+
+- name: "set ssl certificate"
+  tags:
+    - webdav
+    - certs
+  copy:
+    src: "certs/{{ item }}"
+    dest: /etc/nginx/ssl/
+    mode: 0400
+    owner: root
+    group: root
+  notify:
+    - "reload nginx"
+  with_items:
+    - "{{ sslcert }}.crt"
+    - "{{ sslcert }}.key"
+
+- name: "set media dir"
+  tags:
+    - webdav
+  file:
+    state: directory
+    dest: "/media/{{ domain }}"
+    mode: 0755
+    owner: "nginx"
+    group: "nginx"

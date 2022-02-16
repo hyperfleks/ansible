@@ -1,0 +1,366 @@
+# DO NOT EDIT! This file is managed by Ansible. All changes will be overwritten.
+### MAIN ###
+
+searchd {
+    listen          = {{ sphinx_port }}
+    listen          = 9306:mysql41
+    log             = /var/log/sphinx/searchd.log
+    query_log       = /var/log/sphinx/query.log
+    read_timeout    = 5
+    max_children    = 30
+    pid_file        = /var/run/sphinx/searchd.pid
+    seamless_rotate = 1
+    preopen_indexes = 1
+    unlink_old      = 1
+    workers         = threads # for RT to work
+    binlog_path     = /var/lib/sphinx/
+    max_filter_values = 16384
+}
+
+### SOURCES ###
+
+source source_base {
+    type           = mysql
+    sql_port       = 3306
+    sql_host       = {{ database_host }}
+    sql_user       = {{ database_user }}
+    sql_pass       = {{ database_password }}
+    sql_db         = {{ app_name }}
+    sql_query_pre  = SET NAMES utf8
+    sql_query_post =
+}
+
+source gtp_src_blogs_blog : source_base {
+    sql_query = \
+        SELECT id, slug, title, count_subscribers, type, rating, s_project_id, is_tutor_blog, is_career, is_bugcollector\
+        FROM blogs_blog
+
+    sql_attr_uint       = s_project_id
+    sql_attr_uint       = count_subscribers
+    sql_attr_bool       = is_tutor_blog
+    sql_attr_bool       = is_career
+    sql_attr_string     = type
+    sql_attr_bool       = is_bugcollector
+    sql_attr_float      = rating
+
+    sql_attr_multi      = uint available_to_users from query; SELECT blog_id, user_id as available_to_users FROM core_user_available_blogs
+
+}
+
+source gtp_src_blogs_topic : source_base {
+    sql_query = \
+        SELECT id, slug, blog_id, author_id, title, text, text_html, text_short, text_short_html, date_add, date_edit, author_ip, publish,\
+               rating, count_vote, count_comment, count_favourites, forbid_comment, s_project_id, publish\
+        FROM blogs_topic
+
+    sql_attr_uint       = blog_id
+    sql_attr_uint       = author_id
+    sql_attr_uint       = s_project_id
+    sql_attr_bool       = publish
+
+    sql_attr_string     = date_add
+    sql_attr_string     = date_edit
+}
+
+source gtp_src_blogs_topiccomment : source_base {
+    sql_query = \
+        SELECT id, topic_id, parent_id, author_id, text, text_html, date_add, date_edit, author_ip, rating, count_vote, count_favourites,\
+               deleted, lft, rght, tree_id, level, s_project_id\
+        FROM blogs_topiccomment
+
+    sql_attr_uint       = topic_id
+    sql_attr_uint       = parent_id
+    sql_attr_uint       = author_id
+    sql_attr_uint       = s_project_id
+
+    sql_attr_string     = date_add
+    sql_attr_string     = date_edit
+}
+
+source gtp_src_bugcollector_bugreport : source_base {
+    sql_query = \
+        SELECT BR.id AS id, BR.name, BR.email,\
+               T.title, T.text, T.text_html,\
+               U.username, U.first_name, U.last_name\
+        FROM bugcollector_bugreport as BR\
+        INNER JOIN blogs_topic as T ON T.id = BR.topic_id\
+        LEFT JOIN core_project as P ON P.id = BR.s_project_id\
+        LEFT JOIN core_user as U ON U.id = BR.user_id
+}
+
+source gtp_src_knowledge_article : source_base {
+    sql_query            = SELECT id, section_id, title, text FROM knowledge_article
+    sql_attr_uint        = section_id
+    sql_field_string     = title
+    sql_field_string     = text
+}
+
+source gtp_src_core_user : source_base {
+    sql_query = \
+        SELECT usr_t.id, usr_t.email, usr_t.s_external_id, usr_t.s_project_id, username, is_access_allowed, first_name, last_name, photo, rating, skill, main_group_id, \
+            GROUP_CONCAT(CONCAT_WS("", short_name, semester_number, number)) as student_groups\
+        FROM core_user as usr_t\
+        LEFT JOIN curriculum_studentsubgroupstatus as t1 ON usr_t.id = t1.user_id AND status='s'\
+        LEFT JOIN curriculum_subgroup as t2 ON t1.subgroup_id=t2.id\
+        GROUP BY usr_t.id
+
+
+    sql_attr_float      = skill
+    sql_attr_uint       = main_group_id
+    sql_attr_uint       = s_project_id
+    sql_attr_float      = rating
+    sql_attr_string     = photo
+    sql_attr_string     = username
+    sql_attr_bool       = is_access_allowed
+
+    sql_attr_multi      = uint groups from query; SELECT user_id, group_id FROM core_user_groups
+    sql_attr_multi      = timestamp year_admission from query; SELECT user_id, year_admission FROM core_usereducationprofile
+    sql_attr_multi      = timestamp year_graduation from query; SELECT user_id, year_graduation FROM core_usereducationprofile
+}
+
+source gtp_src_career_vacancy : source_base {
+    sql_query = \
+        SELECT V.id, T.title, T.text, T.text_html \
+        FROM career_vacancy AS V \
+        INNER JOIN blogs_topic AS T ON V.topic_id = T.id
+
+    sql_field_string    = title
+    sql_field_string    = text
+    sql_field_string    = text_html
+}
+
+source gtp_src_career_business_unit : source_base {
+    sql_query = \
+        SELECT id, name, short_name FROM career_businessunit
+
+    sql_field_string    = name
+    sql_field_string    = short_name
+}
+
+source gtp_src_career_cv : source_base {
+    sql_query = \
+        SELECT CV.id, CV.name, T.title \
+        FROM career_cv AS CV  \
+        LEFT JOIN career_vacancyresponse AS R ON R.cv_id = CV.id \
+        INNER JOIN career_vacancy AS V ON R.vacancy_id = V.id \
+        INNER JOIN blogs_topic AS T ON V.topic_id = T.id
+
+    sql_field_string    = name
+    sql_field_string    = title
+}
+
+source gtp_src_career_response : source_base {
+    sql_query = \
+        SELECT R.id, U.first_name, U.last_name, T.title \
+        FROM career_vacancyresponse AS R \
+        INNER JOIN career_vacancy AS V ON R.vacancy_id = V.id \
+        INNER JOIN blogs_topic AS T ON V.topic_id = T.id \
+        INNER JOIN career_candidateprofile AS CP ON CP.id = R.candidate_profile_id \
+        INNER JOIN core_user AS U ON U.id = CP.user_id
+
+    sql_field_string    = first_name
+    sql_field_string    = last_name
+    sql_field_string    = title
+}
+
+
+### 5.40.0 ###
+
+source gtp_src_search_blog : source_base {
+    sql_query = \
+        SELECT id, title, s_project_id, description\
+        FROM blogs_blog
+
+    sql_attr_uint       = s_project_id
+}
+source gtp_src_search_topic : source_base {
+    sql_query = \
+        SELECT T.id, title, text_html, date_add, T.s_project_id, publish,\
+               U.first_name, U.last_name, T.blog_id\
+        FROM blogs_topic AS T\
+        INNER JOIN core_user AS U ON U.id = T.author_id
+
+    sql_attr_uint       = blog_id
+    sql_attr_uint       = s_project_id
+    sql_attr_bool       = publish
+
+    sql_attr_string     = date_add
+}
+source gtp_src_search_topiccomment : source_base {
+    sql_query = \
+        SELECT C.id, C.text_html, C.date_add, C.s_project_id, C.topic_id, T.blog_id,\
+               U.first_name, U.last_name\
+        FROM blogs_topiccomment AS C\
+        INNER JOIN core_user AS U ON U.id = C.author_id\
+        INNER JOIN blogs_topic AS T ON T.id = C.topic_id
+
+    sql_attr_uint       = blog_id
+    sql_attr_uint       = topic_id
+    sql_attr_uint       = s_project_id
+    sql_attr_string     = date_add
+}
+source gtp_src_search_user : source_base {
+    sql_query = \
+        SELECT usr_t.id, usr_t.s_project_id, first_name, last_name, rating, about\
+        FROM core_user as usr_t\
+        INNER JOIN core_useraboutprofile AS A ON usr_t.id = A.user_id\
+        GROUP BY usr_t.id
+
+    sql_attr_uint       = s_project_id
+    sql_attr_float      = rating
+}
+
+
+### INDEXES ###
+
+
+index index_base {
+    path            = /var/lib/sphinx/{{ app_name }}/index_base
+    docinfo         = extern
+    morphology      = none
+    stopwords       =
+    min_prefix_len  = 0
+    min_infix_len   = 0
+}
+
+index index_dual_base : index_base {
+    path            = /var/lib/sphinx/{{ app_name }}/index_dual_base
+
+    charset_table = 0..9, a..z, A..Z->a..z, +,\
+                    U+430->a, U+431->b, U+432->v, U+433->g, U+434->d, U+435->e, U+401->e, U+437->z,\
+                    U+438->i, U+439->j, U+43A->k, U+43B->l, U+43C->m, U+43D->n, U+43E->o, U+43F->p,\
+                    U+440->r, U+441->s, U+442->t, U+443->u, U+444->f, U+445->h, U+44D->e,\
+                    U+410->a, U+411->b, U+412->v, U+413->g, U+414->d, U+415->e, U+451->e, U+417->z,\
+                    U+418->i, U+419->j, U+41A->k, U+41B->l, U+41C->m, U+41D->n, U+41E->o, U+41F->p,\
+                    U+420->r, U+421->s, U+422->t, U+423->u, U+424->f, U+425->h, U+42D->e,\
+
+    ignore_chars  = U+044A, U+044C, U+042A, U+042C, U+0060, U+00B4, -
+    regexp_filter = ж => zh
+    regexp_filter = ц => ts
+    regexp_filter = ч => ch
+    regexp_filter = ш => sh
+    regexp_filter = щ => sch
+    regexp_filter = ы => yi
+    regexp_filter = ю => yu
+    regexp_filter = я => ya
+    regexp_filter = Ж => zh
+    regexp_filter = Ц => ts
+    regexp_filter = Ч => ch
+    regexp_filter = Ш => sh
+    regexp_filter = Щ => sch
+    regexp_filter = Ы => yi
+    regexp_filter = Ю => yu
+    regexp_filter = Я => ya
+
+    regexp_filter = x => ks
+    regexp_filter = X => ks
+
+    regexp_filter = y$ => j
+    regexp_filter = Y$ => j
+}
+
+
+index gtp_blogs_blog : index_base {
+    source              = gtp_src_blogs_blog
+    path                = /var/lib/sphinx/{{ app_name }}/blogs_blog
+    expand_keywords     = 1
+    min_prefix_len      = 1
+}
+
+index gtp_blogs_topic : index_base {
+    source              = gtp_src_blogs_topic
+    path                = /var/lib/sphinx/{{ app_name }}/blogs_topic
+    expand_keywords     = 0
+    min_prefix_len      = 0
+}
+
+index gtp_blogs_topiccomment : index_base {
+    source              = gtp_src_blogs_topiccomment
+    path                = /var/lib/sphinx/{{ app_name }}/blogs_topiccomment
+    expand_keywords     = 0
+    min_prefix_len      = 0
+}
+
+index gtp_bugcollector_bugreport : index_base {
+    source              = gtp_src_bugcollector_bugreport
+    path                = /var/lib/sphinx/{{ app_name }}/bugcollector_bugreport
+    expand_keywords     = 1
+    min_prefix_len      = 3
+}
+
+index gtp_knowledge_article : index_base {
+    source              = gtp_src_knowledge_article
+    path                = /var/lib/sphinx/{{ app_name }}/knowledge_article
+    expand_keywords     = 1
+    min_prefix_len      = 1
+}
+
+index gtp_core_user : index_dual_base {
+    source              = gtp_src_core_user
+    path                = /var/lib/sphinx/{{ app_name }}/core_user
+    expand_keywords     = 1
+    min_prefix_len      = 1
+}
+
+index gtp_career_vacancy : index_base {
+    source              = gtp_src_career_vacancy
+    path                = /var/lib/sphinx/{{ app_name }}/career_vacancy
+    charset_table       = 0..9, a..z, A..Z->a..z, +, -, U+430..U+44F, U+410..U+42F->U+430..U+44F, U+0401, U+451
+    expand_keywords     = 1
+    min_prefix_len      = 2
+}
+
+index gtp_career_business_unit : index_base {
+    source              = gtp_src_career_business_unit
+    path                = /var/lib/sphinx/{{ app_name }}/career_business_unit
+    expand_keywords     = 1
+    min_infix_len       = 2
+}
+
+index gtp_career_cv : index_base {
+    source              = gtp_src_career_cv
+    path                = /var/lib/sphinx/{{ app_name }}/career_cv
+    expand_keywords     = 1
+    min_infix_len       = 2
+}
+
+index gtp_career_response : index_base {
+    source              = gtp_src_career_response
+    path                = /var/lib/sphinx/{{ app_name }}/career_response
+    expand_keywords     = 1
+    min_infix_len       = 3
+}
+
+### 5.40.0 ###
+
+index index_search_base : index_base {
+    path            = /var/lib/sphinx/gtp/index_search_base
+
+    html_strip = 1
+    charset_table = 0..9, A..Z->a..z, _, a..z, \
+    U+410..U+42F->U+430..U+44F, U+430..U+44F, U+401->U+0435, U+451->U+0435
+}
+index gtp_search_blog : index_search_base {
+    source              = gtp_src_search_blog
+    path                = /var/lib/sphinx/gtp/search_blog
+    expand_keywords     = 1
+    min_prefix_len      = 1
+}
+index gtp_search_topic : index_search_base {
+    source              = gtp_src_search_topic
+    path                = /var/lib/sphinx/gtp/search_topic
+    expand_keywords     = 1
+    min_prefix_len      = 1
+}
+index gtp_search_topiccomment : index_search_base {
+    source              = gtp_src_search_topiccomment
+    path                = /var/lib/sphinx/gtp/search_topiccomment
+    expand_keywords     = 1
+    min_prefix_len      = 1
+}
+index gtp_search_user : index_search_base {
+    source              = gtp_src_search_user
+    path                = /var/lib/sphinx/gtp/search_user
+    expand_keywords     = 1
+    min_prefix_len      = 1
+}

@@ -1,0 +1,21 @@
+app_name: internal
+gunicorn_port: 37173
+domain: internal.tech-mail.ru
+app_email: no-reply@internal.tech-mail.ru
+static_dir: /opt/internal/static
+media_dir: /media/internal
+
+database_host: "{{ mysql_master_host }}"
+database_user: internal
+database_password: "{{ internal_vault_database_password }}"
+
+secret_key: "{{ internal_vault_secret_key }}"
+
+celery_broker_url: "redis://{{ redis_master_host }}:6379/2"
+redis_cache_url: "redis://{{ redis_master_host }}:6379/3"
+
+email_host: mxx.tp.smailru.net
+email_port: 25
+
+sys_api_key: "{{ internal_vault_sys_api_key }}"
+external_secret: "{{ internal_vault_external_secret }}"

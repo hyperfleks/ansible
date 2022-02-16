@@ -1,0 +1,42 @@
+[common]
+DEBUG: False
+MEDIA_ROOT: {{ media_dir }}
+SITE_URL: https://{{ domain }}
+BUSINESS_NAME: Internal
+
+[secret]
+SECRET_KEY: {{ secret_key }}
+
+[database]
+ENGINE: django.db.backends.mysql
+HOST: {{ database_host }}
+PORT: 3306
+USER: {{ database_user }}
+PASSWORD: {{ database_password }}
+NAME: {{ app_name }}
+
+[logging]
+LOG_FILE: /var/log/{{ app_name }}/{{ app_name }}.log
+
+[smtp]
+HOST: {{ email_host }}
+PORT: {{ email_port }}
+SENDER_EMAIL: {{ app_email }}
+UNSUBSCRIBE_TOKEN: fillme
+
+[redis]
+LOCATION: {{ redis_cache_url }}
+LIFETIME: 86400
+LIFETIME_404: 60
+
+[celery]
+BROKER_URL: {{ celery_broker_url }}
+RESULT_BACKEND: {{ celery_broker_url }}
+
+[sys]
+SYS_URL: https://sys.mail.ru/
+SYS_API_APP: edu_projects
+SYS_API_KEY: {{ sys_api_key }}
+
+[external]
+SECRET: {{ external_secret }}

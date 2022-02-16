@@ -1,0 +1,159 @@
+---
+- name: "(Install: Debian/Ubuntu) Set Default APT NGINX Repository"
+  tags:
+   - init
+   - nginx
+   - nginx-repo
+  set_fact:
+    default_repository:
+      - >-
+        deb [arch=amd64] http://nginx.org/packages/mainline/ubuntu/ bionic nginx
+      - >-
+        deb-src http://nginx.org/packages/mainline/ubuntu/ bionic nginx
+
+- name: "(Install: APT OSs) Set Default APT NGINX Signing Key URL"
+  tags:
+   - init
+   - nginx
+   - nginx-repo
+  apt_key:
+    keyserver: https://nginx.org/keys/nginx_signing.key
+    id: ABF5BD827BD9BF62
+
+- name: "install nginx"
+  tags:
+   - init
+   - nginx
+  apt:
+    name: nginx
+    state: present
+    update_cache: yes
+
+- name: "set nginx.conf"
+  tags:
+   - init
+   - nginx
+  template:
+    src: nginx.j2
+    dest: /etc/nginx/nginx.conf
+  notify:
+   - "reload nginx"
+
+- name: "set proxy.conf"
+  tags:
+   - init
+   - nginx
+  template:
+    src: proxy.j2
+    dest: /etc/nginx/proxy.conf
+  notify:
+   - "reload nginx"
+
+#- name: "set general.conf"
+#  tags:
+#   - init
+#   - nginx
+#  template:
+#    src: general.j2
+#    dest: /etc/nginx/general.conf
+#  notify:
+#   - "reload nginx"
+
+- name: "set security.conf"
+  tags:
+   - init
+   - nginx
+  template:
+    src: security.j2
+    dest: /etc/nginx/security.conf
+  notify:
+   - "reload nginx"
+
+- name: "set letsencrypt.conf"
+  tags:
+   - init
+   - nginx
+  template:
+    src: letsencrypt.j2
+    dest: /etc/nginx/letsencrypt.conf
+  notify:
+   - "reload nginx"
+
+- name: "set sites-enabled dir"
+  tags:
+   - init
+   - nginx
+  file:
+    state: directory
+    dest: /etc/nginx/sites-enabled
+    mode: 0755
+    owner: root
+    group: root
+
+- name: "remove default conf dir"
+  tags:
+   - init
+   - nginx
+  file:
+    state: absent
+    dest: /etc/nginx/conf.d/default.conf
+
+- name: "set cors server"
+  tags:
+   - init
+   - nginx
+  template:
+    src: cors.j2
+    dest: /etc/nginx/cors.conf
+  notify:
+   - "reload nginx"
+
+- name: "copy default server conf"
+  tags:
+   - init
+   - nginx
+   - nginx-site
+   - nginx-conf
+  copy:
+    src: sites-enabled/default.conf
+    dest: /etc/nginx/sites-enabled/default.conf
+  notify:
+   - "reload nginx"
+
+- name: "copy local sites"
+  tags:
+   - nginx
+   - nginx-site
+   - nginx-conf
+  when: infrastructure_front is defined and infrastructure_front
+  copy:
+    src: "sites-enabled/infra/{{ item }}.conf"
+    dest: "/etc/nginx/sites-enabled/"
+    mode: 0644
+    owner: root
+    group: root
+  with_items:
+   - grafana.keys.space
+  notify:
+    - "reload nginx"
+
+- name: "set ssl dir"
+  tags:
+   - init
+   - nginx
+  file:
+    state: directory
+    dest: /etc/nginx/ssl/
+    mode: 0500
+    owner: root
+    group: root
+
+- name: "enable and start nginx"
+  tags:
+   - init
+   - nginx
+  systemd:
+    daemon_reload: yes
+    name: nginx
+    enabled: yes
+    state: started

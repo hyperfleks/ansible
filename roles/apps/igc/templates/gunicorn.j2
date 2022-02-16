@@ -1,0 +1,14 @@
+# {{ ansible_managed }}
+
+import os
+name = '{{ app_name }}'
+bind = '0.0.0.0:{{ gunicorn_port }}'
+proc_name = 'django {{ app_name }}'
+daemon = True
+user = '{{ app_name }}'
+group = '{{ app_name }}'
+
+import multiprocessing
+workers = 9
+
+errorlog='/var/log/{{ app_name }}/gunicorn_error.log'

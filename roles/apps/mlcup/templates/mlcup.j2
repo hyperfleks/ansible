@@ -1,0 +1,61 @@
+[common]
+DEBUG: False
+MEDIA_ROOT: /media/{{ app_name }}
+SITE_URL: https://{{ domain }}
+LANDING_2018_URL: http://telecomdatacup.ru
+BUSINESS_NAME: ML Boot Camp
+DAV_STORAGE_URL: https://storage.aicups.ru/mlcup/
+
+[secret]
+SECRET_KEY: {{ secret_key }}
+
+[database]
+ENGINE: django.db.backends.mysql
+HOST: {{ database_host }}
+PORT: 3306
+USER: {{ database_user }}
+PASSWORD: {{ database_password }}
+NAME: {{ app_name }}
+
+[logging]
+LOG_FILE: /var/log/{{ app_name }}/{{ app_name }}.log
+
+[smtp]
+HOST: {{ email_host }}
+PORT: 25
+SENDER_EMAIL: {{ app_email }}
+REPLY_TO_EMAIL: {{ app_email }}
+UNSUBSCRIBE_TOKEN: {{ unsubscribe_token }}
+
+[memcached]
+LOCATION: 127.0.0.1:11211
+LIFETIME: 86400
+LIFETIME_404: 60
+INVALIDATE_BY_SIGNALS: False
+
+[metrics]
+GOOGLE_ID: UA-100529642-1
+YANDEX_ID: 44891026
+MAIL_ID: 2906284
+GTM_ID: GTM-TWB5WJC
+
+[celery]
+BROKER_URL: {{ celery_broker_url }}
+CELERY_RESULT_BACKEND: {{ celery_result_url }}
+
+[sphinx]
+SPHINX_PORT: {{ sphinx_port }}
+SPHINX_SERVER: 127.0.0.1
+
+[oauth]
+VK_APP_ID: {{ vk_app_id }}
+VK_SECRET: {{ vk_secret_key }}
+FACEBOOK_APP_ID: {{ facebook_app_id }}
+FACEBOOK_SECRET: {{ facebook_secret_key }}
+IT_MAIL_KEY: {{ itmailru_client_key }}
+IT_MAIL_SECRET: {{ itmailru_client_secret }}
+
+[cupsapi]
+CUPS_TOKEN: {{ cups_api_token }}
+CUPS_CLIENT: mlcup
+CUPS_URL: https://cups.mail.ru

@@ -1,0 +1,51 @@
+[common]
+DEBUG: False
+SITE_URL: https://maildesigncup.ru/
+MEDIA_ROOT: /media/{{ app_name }}/
+BUSINESS_NAME: MailDesignCup
+
+[secret]
+SECRET_KEY: {{ secret_key }}
+
+[database]
+ENGINE: django.db.backends.mysql
+NAME: {{ app_zone }}
+USER: {{ database_user }}
+PASSWORD: {{ database_password }}
+HOST: {{ database_host }}
+PORT: 3306
+
+[logging]
+LOG_FILE: /var/log/{{ app_name }}/{{ app_name }}.log
+
+[smtp]
+HOST: {{ email_host }}
+PORT: {{ email_port }}
+SENDER_EMAIL: support@russiandesigncup.ru
+UNSUBSCRIBE_TOKEN: {{ unsubscribe_token }}
+
+[redis]
+LOCATION: {{ redis_cache_url }}
+LIFETIME: 86400
+LIFETIME_404: 60
+
+[celery]
+BROKER_URL: {{ celery_broker_url }}
+RESULT_BACKEND: {{ celery_broker_url }}
+
+[odnoklassniki]
+client_key: {{ ok_client_key }}
+app_key: {{ ok_app_key }}
+client_secret: {{ ok_client_secret }}
+
+[vkontakte]
+app_id: {{ vk_app_id }}
+api_secret: {{ vk_api_secret }}
+
+[twitter]
+consumer_key: {{ twitter_consumer_key }}
+consumer_secret: {{ twitter_consumer_secret }}
+
+[facebook]
+app_id: {{ facebook_app_id }}
+api_secret: {{ facebook_api_secret }}

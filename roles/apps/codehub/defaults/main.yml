@@ -1,0 +1,13 @@
+app_name: codehub
+gunicorn_port: 37109
+domain: hub.aicups.ru
+app_email: no-reply@hub.aicups.ru
+
+secret_key: "{{ hub_vault_secret_key }}"
+
+database_password: "{{ hub_vault_database_password }}"
+database_host: 127.0.0.1
+
+email_host: mxx.tp.smailru.net
+
+celery_broker_url: redis://localhost:6379/0

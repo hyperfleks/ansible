@@ -1,0 +1,13 @@
+app_name: dcr
+
+storage_url: http://stor.highloadcup.ru/
+storage_login: coderunner@corp.mail.ru
+storage_password: "{{ dcr_vault_storage_password }}"
+
+hub_url: http://hub.aicups.ru/api/v2/
+
+aicups_davstorage_url: https://storage.aicups.ru/
+hlc_davstorage_url:  https://storage.aicups.ru/hlc/
+
+email_host: mxx.tp.smailru.net
+email_port: 25

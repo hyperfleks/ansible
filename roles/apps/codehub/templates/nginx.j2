@@ -1,0 +1,43 @@
+# {{ ansible_managed }}
+
+limit_req_zone $binary_remote_addr zone={{ app_name }}:10m rate=10r/s;
+
+server {
+    listen 80;
+    server_name {{ domain }};
+
+    access_log /var/log/nginx/{{ domain }}.access.log timed;
+    error_log /var/log/nginx/{{ domain }}.error.log;
+
+
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_hide_header UserId;
+    client_max_body_size 10m;
+
+    location / {
+        limit_req zone={{ app_name }} burst=50;
+        proxy_pass http://127.0.0.1:{{ gunicorn_port }};
+    }
+
+    location /ssadmin {
+        limit_req zone={{ app_name }} burst=50;
+        proxy_pass http://127.0.0.1:{{ gunicorn_port }};
+        allow {{ mailru_hq_net }}; # Mail.Ru HQ
+        allow {{ mailru_vpn_net }}; # Mail.Ru VPN
+        allow {{ zztop1_ip }};  # zztop1
+        deny all;
+    }
+
+
+    location /static {
+        alias /opt/{{ app_name }}/static;
+        access_log off;
+    }
+
+    location /media {
+        alias /media/{{ app_name }};
+        access_log off;
+    }
+}

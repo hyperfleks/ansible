@@ -1,0 +1,14 @@
+app_name: storage
+proxy_port: 37128
+domain: stor.highloadcup.ru
+app_email: no-reply@stor.highloadcup.ru
+
+cookie_secret: "{{ storage_vault_cookie_secret }}"
+
+database_host: 127.0.0.1
+database_password: "{{ storage_vault_database_password }}"
+
+email_host: mxx.tp.smailru.net
+
+celery_broker_url: redis://localhost:6379/0
+cache_location: redis://localhost:6379/1

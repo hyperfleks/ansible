@@ -1,0 +1,8 @@
+ansible_host: infra1.do.keys.space
+ansible_user: root
+
+infrastructure_front: yes
+
+iptables_filter_input_chain: |
+  -A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
+  -A INPUT -p tcp -m tcp --dport 443 -j ACCEPT

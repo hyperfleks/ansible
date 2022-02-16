@@ -1,0 +1,285 @@
+### MAINS
+location / {
+    limit_req zone=mainperip burst=100;
+
+    {% if enable_upstream is defined and enable_upstream%}
+
+    proxy_pass http://gtp;
+
+    {% else %}
+
+    proxy_pass $gtp;
+
+    {% endif %}
+}
+
+location /gtp_admin {
+    limit_req zone=mainperip burst=50;
+    proxy_pass $gtp;
+
+    allow {{ mailru_hq_net }}; # Mail.Ru HQ
+    allow {{ mailru_vpn_net }}; # Mail.Ru VPN
+    allow {{ monitor_ip }}; # monitor
+    allow {{ infra0_ip }}; # infra0
+    allow {{ infra2_ip }}; # infra2
+    allow {{ zztop1_ip }};  # zztop1
+    deny all;
+}
+
+location /management {
+    limit_req zone=mainperip burst=50;
+    proxy_pass $gtp;
+    proxy_read_timeout 150;
+
+    allow {{ mailru_hq_net }}; # Mail.Ru HQ
+    allow {{ mailru_vpn_net }}; # Mail.Ru VPN
+    allow {{ monitor_ip }}; # monitor
+    allow {{ infra0_ip }}; # infra0
+    allow {{ infra2_ip }}; # infra2
+    allow {{ zztop1_ip }};  # zztop1
+    deny all;
+}
+
+location /api/ {
+    limit_req zone=mainperip burst=50;
+    proxy_pass $gtp;
+}
+
+location /api/sap/ {
+    limit_req zone=mainperip burst=50;
+    proxy_pass $gtp;
+
+    allow {{ sap1_ip }}; # sap1.lab.smailru.net
+    allow {{ sap2_ip }}; # sap2.lab.smailru.net
+    deny all;
+}
+
+location /api/sap/login/ {
+    limit_req zone=mainperip burst=50;
+    proxy_pass $gtp;
+}
+
+location /api/sap/auth/ {
+    limit_req zone=mainperip burst=50;
+    proxy_pass $gtp;
+}
+
+location /sap/ {
+    limit_req zone=mainperip burst=50;
+    proxy_pass $gtp;
+
+    allow {{ sap1_ip }}; # sap1.lab.smailru.net
+    allow {{ sap2_ip }}; # sap2.lab.smailru.net
+    deny all;
+}
+
+location /aggregated/ {
+    limit_req zone=mainperip burst=50;
+    proxy_pass $gtp;
+
+    auth_basic "Do you have an access?";
+    auth_basic_user_file /etc/nginx/dashboard.htpasswd;
+
+    allow {{ mailru_hq_net }}; # Mail.Ru HQ
+    allow {{ mailru_vpn_net }}; # Mail.Ru VPN
+    allow {{ zztop1_ip }};  # zztop1
+    deny all;
+}
+
+location /sap/login/ {
+    limit_req zone=mainperip burst=50;
+    proxy_pass $gtp;
+}
+
+location /sap/auth/ {
+    limit_req zone=mainperip burst=50;
+    proxy_pass $gtp;
+}
+
+location /ssadmin/ {
+    limit_req zone=mainperip burst=50;
+    return 404;
+}
+
+location ~* /discipline-edit/([0-9]*)/(staff|system)/ {
+    limit_req zone=mainperip burst=50;
+    proxy_pass $gtp;
+
+    allow {{ mailru_hq_net }}; # Mail.Ru HQ
+    allow {{ mailru_vpn_net }}; # Mail.Ru VPN
+    allow {{ zztop1_ip }};  # zztop1
+    deny all;
+}
+
+location /api/mobile/ {
+    limit_req zone=mainperip burst=50;
+    proxy_pass $gtp;
+}
+
+location ~* ^/contacts(\/?)$ {
+    return 301 /pages/contacts;
+}
+
+location = /registration/ {
+    return 302 /registration/short/;
+}
+
+### END MAINS
+
+
+### STATIC ###
+location /static/ {
+    alias /opt/gtp/static/;
+    access_log off;
+}
+
+location /media_gtp/ {
+    alias /media/gtp/;
+    access_log off;
+}
+
+location /media/ {
+    alias /media/gtp/;
+    access_log off;
+}
+
+location /media/avatars/gtp/ {
+    alias /media/gtp/avatars/gtp/;
+    access_log off;
+}
+
+location /media/avatars/ {
+    set $alias /media/gtp/avatars/gtp/;
+    if ($host = 'park.mail.ru') {
+        set $alias /media/gtp/avatars/park/;
+    }
+    if ($host = 'sphere.mail.ru') {
+        set $alias /media/gtp/avatars/sphere/;
+    }
+    if ($host = 'track.mail.ru') {
+        set $alias /media/gtp/avatars/track/;
+    }
+    if ($host = 'atom.mail.ru') {
+        set $alias /media/gtp/avatars/atom/;
+    }
+    if ($host = 'technoatom.mail.ru') {
+        set $alias /media/gtp/avatars/atom/;
+    }
+    if ($host = 'polis.mail.ru') {
+        set $alias /media/gtp/avatars/polis/;
+    }
+    alias $alias;
+    access_log off;
+}
+
+location /media/attachments/ {
+    set $alias /media/gtp/avatars_gtp/;
+    if ($host = 'park.mail.ru') {
+        set $alias /media/gtp/attachments/park/;
+    }
+    if ($host = 'sphere.mail.ru') {
+        set $alias /media/gtp/attachments/sphere/;
+    }
+    if ($host = 'track.mail.ru') {
+        set $alias /media/gtp/attachments/track/;
+    }
+    if ($host = 'atom.mail.ru') {
+        set $alias /media/gtp/attachments/atom/;
+    }
+    if ($host = 'technoatom.mail.ru') {
+        set $alias /media/gtp/attachments/atom/;
+    }
+    if ($host = 'polis.mail.ru') {
+        set $alias /media/gtp/attachments/polis/;
+    }
+    alias $alias;
+    access_log off;
+}
+
+location /media/motivations/ {
+    alias /media/gtp/motivations/;
+
+    allow {{ mailru_hq_net }}; # Mail.Ru HQ
+    allow {{ mailru_vpn_net }}; # Mail.Ru VPN
+    allow {{ zztop1_ip }};  # zztop1
+    deny all;
+}
+### END STATIC
+
+### SPECIAL
+error_page 404 =404 @error404;
+error_page 500 503 =503 @error503;
+error_page 502 =502 @error502;
+error_page 504 =504 @error504;
+
+location @error404 {
+    root /opt/gtp/src/errors/default;
+    rewrite ^ /404.html break;
+}
+
+location @error502 {
+    root /opt/gtp/src/errors/default;
+    rewrite ^ /502.html break;
+}
+
+location @error503 {
+    root /opt/gtp/src/errors/default;
+    rewrite ^ /502.html break;
+}
+
+location @error504 {
+   root /opt/gtp/src/errors/default;
+    rewrite ^ /504.html break;
+}
+
+location /itmailru/ping {
+    add_header Content-Type text/plain;
+    return 200 "Ok";
+}
+
+location /connection {
+    return 404;
+    access_log off;
+}
+### END SPECIAL
+
+### CENTRIFUGO
+location /centrifugo/ {
+    rewrite ^/centrifugo/(.*) /$1 break;
+
+    proxy_pass http://127.0.0.1:{{ centrifugo_port }};
+    proxy_pass_header Server;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Scheme $scheme;
+
+    proxy_redirect off;
+    access_log off;
+}
+
+location /centrifugo/connection {
+    rewrite ^/centrifugo(.*) $1 break;
+
+    gzip on;
+    gzip_min_length 1000;
+    gzip_proxied any;
+    keepalive_timeout 65;
+
+    proxy_http_version 1.1;
+    proxy_pass http://127.0.0.1:{{ centrifugo_port }};
+    proxy_buffering off;
+    proxy_read_timeout 60s;
+
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Scheme $scheme;
+    proxy_set_header Host $http_host;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection $connection_upgrade;
+    access_log off;
+}
+
+location = /centrifugo/connection/sockjs/iframe.html {
+    deny all;
+    access_log off;
+}
+### END CENTRIFUGO

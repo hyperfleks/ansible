@@ -1,0 +1,48 @@
+# {{ ansible_managed }}
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:TRUSTED - [0:0]
+{% block iptables_filter_extra_chains_def %}{% endblock %}
+{% if iptables_filter_extra_chains_def is defined %}{{ iptables_filter_extra_chains_def }}{% endif %}
+-A INPUT -i lo -j ACCEPT
+-A INPUT -m state --state INVALID -j DROP
+-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 22 -j TRUSTED
+-A INPUT -p tcp -m tcp --dport 19999 -j TRUSTED
+{% if iptables_filter_input_chain is defined %}{{ iptables_filter_input_chain }}{% endif %}
+{% block pre_base_iptables_filter_input_chain %}{% endblock %}
+-A INPUT -p icmp -m icmp --icmp-type 0 -j ACCEPT
+-A INPUT -p icmp -m icmp --icmp-type 3 -j ACCEPT
+-A INPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT
+-A INPUT -p icmp -m icmp --icmp-type 11 -j ACCEPT
+{% block iptables_filter_input_chain %}{% endblock %}
+{# -A INPUT -j REJECT --reject-with icmp-host-prohibited #}
+-A INPUT -p tcp -j REJECT --reject-with tcp-reset
+-A INPUT -j REJECT --reject-with icmp-port-unreachable
+{% block iptables_filter_forward_chain %}{% endblock %}
+{% if iptables_filter_forward_chain is defined %}{{ iptables_filter_forward_chain }}{% endif %}
+{# -A FORWARD -j REJECT --reject-with icmp-host-prohibited #}
+-A FORWARD -j REJECT --reject-with icmp-port-unreachable
+{% if iptables_filter_output_chain is defined %}{{ iptables_filter_output_chain }}{% endif %}
+-A TRUSTED -s {{ mailru_hq_net }} -m comment --comment "Mail.RU HQ" -j ACCEPT
+-A TRUSTED -s {{ mailru_vpn_net }} -m comment --comment "Mail.RU VPN" -j ACCEPT
+{% block iptables_filter_extra_chains_content %}{% endblock %}
+{% if iptables_filter_extra_chains_content is defined %}{{ iptables_filter_extra_chains_content }}{% endif %}
+COMMIT
+{% block iptables_postblock %}{% endblock %}
+{% if iptables_postblock is defined %}{{ iptables_postblock }}{% endif %}
+{#
+*raw
+:PREROUTING ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+-A PREROUTING -p tcp -m tcp --dport 80 -j NOTRACK
+-A PREROUTING -p tcp -m tcp --dport 443 -j NOTRACK
+-A PREROUTING -p tcp -m tcp --sport 10050 -j NOTRACK
+-A OUTPUT -p tcp -m tcp --sport 80 -j NOTRACK
+-A OUTPUT -p tcp -m tcp --sport 443 -j NOTRACK
+-A OUTPUT -p tcp -m tcp --dport 10050 -j NOTRACK
+COMMIT
+#}
+# Completed

@@ -1,0 +1,36 @@
+app_name: gtp
+gunicorn_port: 37074
+centrifugo_port: 27074
+sphinx_port: 9312
+domain: gtp.tech-mail.ru
+
+secret_key: "{{ gtp_vault_secret_key }}"
+recaptcha_public_key: "{{ gtp_vault_recaptcha_public_key }}"
+recaptcha_secret_key: "{{ gtp_vault_recaptcha_secret_key }}"
+mobile_salt: "{{ gtp_vault_mobile_salt }}"
+
+database_host: "{{ mysql_master_host }}"
+database_user: gtp
+database_password: "{{ gtp_vault_database_password }}"
+
+celery_broker_url: "redis://{{ redis_master_host }}:6379/0"
+redis_cache_url: "redis://{{ redis_master_host }}:6379/1"
+
+sap_url: https://sap.tech-mail.ru
+sap_secret_key: "{{ gtp_vault_sap_secret_key }}"
+
+ttest_url: https://test.tech-mail.ru
+ttest_load_users: /api/set_users/
+ttest_student_rates: /api/get_user_scores/
+
+email_host: mxx.tp.smailru.net
+email_port: 25
+
+centrifugo_api_key: "{{ gtp_vault_centrifugo_api_key }}"
+centrifugo_secret_key: "{{ gtp_vault_centrifugo_secret_key }}"
+
+itmailru_client_key: "{{ gtp_vault_itmailru_client_key }}"
+itmailru_client_secret: "{{ gtp_vault_itmailru_client_secret }}"
+
+internal_url: https://internal.tech-mail.ru
+internal_token: "{{ gtp_vault_internal_token }}"

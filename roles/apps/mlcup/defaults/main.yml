@@ -1,0 +1,26 @@
+app_name: mlcup
+gunicorn_port: 37127
+sphinx_port: 9312
+domain: mlbootcamp.ru
+app_email: info@mlbootcamp.ru
+
+secret_key: "{{ mlcup_vault_secret_key }}"
+unsubscribe_token: "{{ mlcup_vault_unsubscribe_token }}"
+
+database_host: "{{ mysql_master_host }}"
+database_user: mlcup
+database_password: "{{ mlcup_vault_database_password }}"
+
+email_host: mxx.tp.smailru.net
+
+celery_broker_url: "redis://{{ redis_master_host }}:6379/2"
+celery_result_url: "redis://{{ redis_master_host }}:6379/2"
+
+vk_app_id: "{{ mlcup_vault_vk_app_id }}"
+vk_secret_key: "{{ mlcup_vault_vk_secret_key }}"
+facebook_app_id: "{{ mlcup_vault_facebook_app_id }}"
+facebook_secret_key: "{{ mlcup_vault_facebook_secret_key }}"
+itmailru_client_key: "{{ mlcup_vault_itmailru_client_key }}"
+itmailru_client_secret: "{{ mlcup_vault_itmailru_client_secret }}"
+
+cups_api_token: "{{ mlcup_vault_cups_api_token }}"

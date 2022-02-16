@@ -1,0 +1,80 @@
+# {{ ansible_managed }}
+
+limit_req_zone $binary_remote_addr zone=rhc:10m rate=10r/s;
+geo $maintenance {
+    default 1;
+    5.61.239.166/31 0; # HL site&stor
+    5.61.239.168/29 0; # HL CRs
+    5.61.239.134/31 0; # HL H1-2
+    5.61.239.136/31 0; # HL H3-4
+#    194.186.63.20/32 0; # TP-VPN
+#    185.6.244.0/23 0; # Office
+#    194.186.63.0/24 0; # VPN
+}
+
+server {
+    listen 80;
+    listen 443 ssl;
+    server_name {{ domain }};
+
+    access_log /var/log/nginx/{{ domain }}.access.log timed;
+    error_log /var/log/nginx/{{ domain }}.error.log;
+
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_certificate /etc/nginx/ssl/wildcard.highloadcup.ru.crt;
+    ssl_certificate_key /etc/nginx/ssl/wildcard.highloadcup.ru.key;
+    ssl_session_cache shared:SSL:10m;
+    ssl_ciphers 'ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!CAMELLIA:!DES:!MD5:!PSK:!RC4';
+    ssl_prefer_server_ciphers on;
+    ssl_session_timeout 10m;
+
+    if ($https != "on") {
+        rewrite (.*) https://$host$1;
+    }
+    if ($http_host != {{ domain }}) {
+        return 404;
+    }
+
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_hide_header UserId;
+    client_max_body_size 250m;
+
+    location / {
+#        if ($maintenance = 1) {
+#            return 503;
+#        }
+        limit_req zone=rhc burst=50;
+        proxy_pass http://127.0.0.1:{{ gunicorn_port }};
+    }
+
+    location /ssadmin {
+        limit_req zone=rhc burst=50;
+        proxy_pass http://127.0.0.1:{{ gunicorn_port }};
+        allow {{ mailru_hq_net }}; # Mail.Ru HQ
+        allow {{ mailru_vpn_net }}; # Mail.Ru VPN
+        deny all;
+    }
+
+    error_page 503 @stub;
+    location @stub {
+        root /;
+        rewrite ^ /opt/rhc/src/core/templates/errors/maintenance.html break;
+    }
+
+    location /static {
+        alias /opt/rhc/static;
+        access_log off;
+    }
+
+    location /media {
+        alias {{ media_dir }};
+        access_log off;
+    }
+
+    location = /mailru-verificationd7c4297c5378ad40.html {
+        rewrite ^/(.*)  $1;
+        return 200 "mailru-verification: d7c4297c5378ad40";
+    }
+}

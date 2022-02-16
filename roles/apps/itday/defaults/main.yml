@@ -1,0 +1,21 @@
+app_name: itday
+gunicorn_port: 37182
+domain: itday.tech-mail.ru
+app_email: support@park.mail.ru
+
+static_dir: /opt/itday/static
+media_dir: /media/itday
+
+secret_key: "{{ itday_vault_secret_key }}"
+
+database_host: "{{ mysql_master_host }}"
+database_user: itday
+database_password: "{{ itday_vault_database_password }}"
+
+cache_location: "redis://{{ redis_master_host }}:6379/7"
+celery_broker_url: "redis://{{ redis_master_host }}:6379/6"
+celery_result_url: "redis://{{ redis_master_host }}:6379/6"
+
+email_host: mxx.tp.smailru.net
+email_port: 25
+unsubscribe_token: "{{ itday_vault_unsubscribe_token }}"

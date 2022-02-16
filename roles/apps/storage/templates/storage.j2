@@ -1,0 +1,47 @@
+[common]
+DEBUG: False
+PORT: {{ proxy_port }}
+SITE_URL: https://{{ domain }}/
+
+[smtp]
+HOST: {{ email_host }}
+PORT: 25
+SENDER_EMAIL: {{ app_email }}
+
+[celery]
+BROKER_URL: {{ celery_broker_url }}
+RESULT_BACKEND: {{ celery_broker_url }}
+
+[logging]
+LOG_FILE: /var/log/{{ app_name }}/{{ app_name }}.log
+
+[database]
+HOST: {{ database_host }}
+PORT: 3306
+USER: {{ app_name }}
+PASSWORD: {{ database_password }}
+NAME: {{ app_name }}
+
+[tornado]
+SUB_PROCESSES: 0
+
+[cache]
+REDIS_ADDRESS: {{ cache_location }}
+LIFETIME: 86400
+
+[timeouts]
+AUTH_EXPIRES_SEC: 3600
+NOTIFY_EXT_SEC: 3
+REGISTRY_TIMEOUT: 60
+
+[limits]
+MAX_PUSH_GB: 5
+MAX_REPO_GB: 8
+MAX_PUSH_CNT_PER_DAY: 20
+MAX_BUFFER_SIZE_BYTES: 512e6
+
+[secret]
+COOKIE_SECRET: {{ cookie_secret }}
+
+[static]
+STATIC_ROOT: /opt/{{ app_name }}/static

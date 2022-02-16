@@ -1,0 +1,11 @@
+---
+- name: "playbook for superhub node"
+  hosts:
+    - do-infra1
+  roles:
+    - {role: 'linux/cbase'}
+    - {role: 'tools/netdata'}
+    - {role: 'tools/letsencrypt'}
+    - {role: 'tools/nginx'}
+    - {role: 'tools/prometheus'}
+    - {role: 'tools/victoriametrics'}

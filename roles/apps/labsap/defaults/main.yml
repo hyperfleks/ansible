@@ -1,0 +1,19 @@
+app_name: labsap
+gunicorn_port: 37150
+domain: sap.tech-mail.ru
+app_email: sap@park.mail.ru
+
+media_mode: "0750"
+
+secret_key: "{{ labsap_vault_secret_key }}"
+gtp_secret_key: "{{ labsap_vault_gtp_secret_key }}"
+
+database_host: "{{ mysql_master_host }}"
+database_user: labsap
+database_password: "{{ labsap_vault_database_password }}"
+
+redis_cache_url: "redis://{{ redis_master_host }}:6379/2"
+celery_broker_url: "redis://{{ redis_master_host }}:6379/1"
+
+email_host: mxx.tp.smailru.net
+email_port: 25

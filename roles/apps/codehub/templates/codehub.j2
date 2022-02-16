@@ -1,0 +1,27 @@
+[common]
+DEBUG: False
+MEDIA_ROOT: /media/{{ app_name }}
+SITE_URL: http://{{ domain }}
+
+[secret]
+SECRET_KEY: {{ secret_key }}
+
+[database]
+ENGINE: django.db.backends.mysql
+NAME: {{ app_name }}
+USER: {{ app_name }}
+PASSWORD: {{ database_password }}
+HOST: {{ database_host }}
+PORT: 3306
+
+[logging]
+LOG_FILE: /var/log/{{ app_name }}/{{ app_name }}.log
+
+[smtp]
+HOST: {{ email_host }}
+PORT: 25
+SENDER_EMAIL: {{ app_email }}
+
+[celery]
+BROKER_URL: {{ celery_broker_url }}
+CELERY_RESULT_BACKEND: {{ celery_broker_url }}

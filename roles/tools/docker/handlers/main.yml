@@ -1,0 +1,6 @@
+---
+- name: "save iptables"
+  iptables:
+    path: /etc/iptables/rules.v4
+    state: save
+    backup: true

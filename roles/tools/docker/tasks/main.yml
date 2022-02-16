@@ -1,0 +1,34 @@
+---
+- name: "add Docker GPG key"
+  tags:
+   - docker
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: "add Docker repository"
+  tags:
+    - docker
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
+    state: present
+    filename: docker
+
+- name: "install docker"
+  tags:
+   - docker
+  ignore_errors: yes
+  apt:
+    update_cache: yes
+    name: ['docker-ce', 'docker-ce-cli', 'containerd.io']
+    state: present
+
+- name: "set docker config"
+  tags:
+   - docker
+  template:
+    src: docker.j2
+    dest: /etc/docker/daemon.json
+  notify:
+   - "restart docker"
+   #- "save iptables"

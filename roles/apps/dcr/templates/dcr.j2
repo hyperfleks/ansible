@@ -1,0 +1,20 @@
+[common]
+LOG_FILE=/var/log/{{ app_name }}/{{ app_name }}.log
+DEBUG=False
+HUB_URL={{ hub_url }}
+RUNNER_NAME={{ ansible_hostname }}
+RUNNER_KEY={{ runner_key }}
+REQUEST_TASK_INTERVAL=5
+MEDIA_ROOT=/media/{{ app_name }}
+
+[SMTP]
+EMAIL_HOST={{ email_host }}
+EMAIL_PORT={{ email_port }}
+SENDER_EMAIL={{ ansible_hostname }}@aicups.ru
+
+[storages]
+URL={{ storage_url }}
+LOGIN={{ storage_login }}
+PASSWORD={{ storage_password }}
+AIC_DAVSTORAGE_URL={{ aicups_davstorage_url }}
+HLC_DAVSTORAGE_URL={{ hlc_davstorage_url }}

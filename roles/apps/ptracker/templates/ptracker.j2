@@ -1,0 +1,55 @@
+[common]
+DEBUG: False
+MEDIA_ROOT: {{ media_dir }}
+SITE_URL: https://tracker.cups.mail.ru/
+MAX_FILE_COUNT: 20
+SECRET_KEY: {{ secret_key }}
+DELIVERY_TOKEN_EXPIRY: 3600
+
+[database]
+ENGINE: django.db.backends.mysql
+HOST: {{ database_host }}
+PORT: 3306
+USER: {{ database_user }}
+PASSWORD: {{ database_password }}
+NAME: {{ app_name }}
+
+[smtp]
+EMAIL_HOST: {{ email_host }}
+EMAIL_PORT: 25
+EMAIL_USE_TLS: False
+SENDER_EMAIL: {{ app_email }}
+
+[celery]
+CELERY_BROKER_URL: {{ celery_broker_url }}
+CELERY_RESULT_BACKEND: {{ celery_result_url }}
+CELERY_SEND_EVENTS: True
+
+[metrics]
+GOOGLE_ID: UA-62753080-9
+YANDEX_ID: 40622870
+MAIL_ID:
+
+[recaptcha]
+PRIVATE_KEY: {{ recaptcha_private_key }}
+PUBLIC_KEY: {{ recaptcha_public_key }}
+
+[memcached]
+LOCATION: 127.0.0.1:11211
+LIFETIME: 86400
+LIFETIME_404: 60
+
+[post_api]
+login:
+password:
+
+[office]
+WORK_FROM: 12:00
+WORK_TILL: 19:00
+
+[itmailru]
+url: https://it.mail.ru
+client_key: {{ itmailru_client_key }}
+client_secret: {{ itmailru_client_secret }}
+
+[limits]

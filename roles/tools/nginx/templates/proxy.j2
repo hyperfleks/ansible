@@ -1,0 +1,32 @@
+# {{ ansible_managed }}
+
+proxy_http_version	1.1;
+proxy_cache_bypass	$http_upgrade;
+
+proxy_set_header Upgrade			$http_upgrade;
+proxy_set_header Connection			"upgrade";
+proxy_set_header Host				$host;
+proxy_set_header X-Real-IP			$remote_addr;
+proxy_set_header X-Forwarded-For	$proxy_add_x_forwarded_for;
+proxy_set_header X-Forwarded-Proto	$scheme;
+proxy_set_header X-Forwarded-Host	$host;
+proxy_set_header X-Forwarded-Port	$server_port;
+
+# https://help.poralix.com/articles/iphone-does-not-open-https-site-safari-nsposixerrordomain
+proxy_hide_header Upgrade;
+
+# https://codebeer.ru/nginx-an-upstream-response-is-buffered-to-a-temporary-file/
+# https://nemcd.com/2011/01/v-logax-nginx-upstream-response-is-buffered-to-a-temporary-file/
+proxy_max_temp_file_size 0;
+
+client_max_body_size    2048m;
+client_body_buffer_size 128k;
+proxy_connect_timeout   300ms;
+proxy_send_timeout      20s;
+proxy_read_timeout      20s;
+proxy_buffers           32 256k;
+proxy_buffer_size       256k;
+proxy_busy_buffers_size 256k;
+fastcgi_buffers         16 16k;
+fastcgi_buffer_size     32k;
+#proxy_buffering        off;

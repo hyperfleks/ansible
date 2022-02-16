@@ -1,0 +1,153 @@
+# {{ ansible_managed }}
+
+limit_req_zone $binary_remote_addr zone={{ domain }}:10m rate=10r/s;
+
+server {
+    listen 80;
+    listen 443 ssl;
+    server_name {{ domain }};
+
+    access_log /var/log/nginx/{{ domain }}.access.log timed;
+    error_log /var/log/nginx/{{ domain }}.error.log;
+
+    client_max_body_size 100m;
+    gzip_static always;
+    add_header Access-Control-Allow-Origin *;
+
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_certificate /etc/nginx/ssl/{{ sslcert }}.crt;
+    ssl_certificate_key /etc/nginx/ssl/{{ sslcert }}.key;
+    ssl_session_cache shared:SSL:10m;
+    ssl_ciphers 'ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!CAMELLIA:!DES:!MD5:!PSK:!RC4';
+    ssl_prefer_server_ciphers on;
+    ssl_session_timeout 10m;
+
+    if ($https != "on") {
+        rewrite (.*) https://$host$1;
+    }
+
+    location / {
+        return 404;
+    }
+
+    location = /robots.txt {
+        return 200 "User-agent: *\nDisallow: /\n";
+    }
+
+    location /private/ {
+        limit_req zone={{ domain }} burst=50;
+        dav_access group:rw all:r;
+        dav_methods PUT MKCOL;
+        create_full_put_path on;
+        alias /media/{{ domain }}/private/;
+        allow 95.163.254.1/32;
+        allow 95.163.254.2/32;
+        allow 95.163.254.3/32;
+        allow 95.163.254.4/32;
+        allow 95.163.254.5/32;
+        allow 95.163.254.6/32;
+        allow 95.163.254.7/32;
+        allow 95.163.254.8/32;
+        allow 95.163.254.9/32;
+        allow 95.163.254.10/32;
+        allow 95.163.254.11/32;
+        allow 95.163.254.12/32;
+        allow 95.163.254.13/32;
+        allow 95.163.254.14/32;
+        allow 95.163.254.15/32;
+        allow 95.163.254.16/32;
+        allow 95.163.254.17/32;
+        allow 95.163.254.18/32;
+        allow 5.61.239.168/32;
+        allow 5.61.239.169/32;
+        allow 5.61.239.170/32;
+        allow 5.61.239.171/32;
+        allow 5.61.239.172/32;
+
+        allow 5.61.239.157/32;
+        deny all;
+    }
+
+    location /public/ {
+        limit_req zone={{ domain }} burst=50;
+        dav_access group:rw all:r;
+        dav_methods PUT MKCOL;
+        create_full_put_path on;
+        alias   /media/{{ domain }}/public/;
+        limit_except GET {
+            allow 95.163.254.1/32;
+            allow 95.163.254.2/32;
+            allow 95.163.254.3/32;
+            allow 95.163.254.4/32;
+            allow 95.163.254.5/32;
+            allow 95.163.254.6/32;
+            allow 95.163.254.7/32;
+            allow 95.163.254.8/32;
+            allow 95.163.254.9/32;
+            allow 95.163.254.10/32;
+            allow 95.163.254.11/32;
+            allow 95.163.254.12/32;
+            allow 95.163.254.13/32;
+            allow 95.163.254.14/32;
+            allow 95.163.254.15/32;
+            allow 95.163.254.16/32;
+            allow 95.163.254.17/32;
+            allow 95.163.254.18/32;
+            allow 5.61.239.168/32;
+            allow 5.61.239.169/32;
+            allow 5.61.239.170/32;
+            allow 5.61.239.171/32;
+            allow 5.61.239.172/32;
+
+            allow 5.61.239.157/32;
+            deny all;
+        }
+    }
+
+    location /mlcup/private/ {
+        dav_access group:rw all:r;
+        dav_methods PUT MKCOL;
+        create_full_put_path on;
+        client_max_body_size 50m;
+        alias /media/{{ domain }}/mlcup/private/;
+        allow 5.61.239.151;
+        allow 5.61.239.152;
+        deny all;
+    }
+
+    location /hlc/private/ {
+        limit_req zone={{ domain }} burst=50;
+        dav_access group:rw all:r;
+        dav_methods PUT MKCOL;
+        create_full_put_path on;
+        client_max_body_size 2g;
+        alias /media/{{ domain }}/hlc/private/;
+        allow 95.163.254.1/32;
+        allow 95.163.254.2/32;
+        allow 95.163.254.3/32;
+        allow 95.163.254.4/32;
+        allow 95.163.254.5/32;
+        allow 95.163.254.6/32;
+        allow 95.163.254.7/32;
+        allow 95.163.254.8/32;
+        allow 95.163.254.9/32;
+        allow 95.163.254.10/32;
+        allow 95.163.254.11/32;
+        allow 95.163.254.12/32;
+        allow 95.163.254.13/32;
+        allow 95.163.254.14/32;
+        allow 95.163.254.15/32;
+        allow 95.163.254.16/32;
+        allow 95.163.254.17/32;
+        allow 95.163.254.18/32;
+        allow 5.61.239.168/32;
+        allow 5.61.239.169/32;
+        allow 5.61.239.170/32;
+        allow 5.61.239.171/32;
+        allow 5.61.239.172/32;
+
+        allow 5.61.239.166/32;
+        deny all;
+    }
+
+}

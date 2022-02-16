@@ -1,0 +1,52 @@
+[common]
+DEBUG: False
+MEDIA_ROOT: {{ media_dir }}
+BUSINESS_NAME: OK Games Cup
+SITE_URL: https://{{ domain }}
+HTTPS_ONLY: True
+
+[secret]
+SECRET_KEY: {{ secret_key }}
+
+[database]
+ENGINE: django.db.backends.mysql
+HOST: {{ database_host }}
+PORT: 3306
+USER: {{ database_user }}
+PASSWORD: {{ database_password }}
+NAME: {{ app_name }}
+
+[logging]
+LOG_FILE: /var/log/{{ app_name }}/{{ app_name }}.log
+
+[smtp]
+HOST: {{ email_host }}
+PORT: {{ email_port }}
+SENDER_EMAIL: {{ app_email }}
+UNSUBSCRIBE_TOKEN: {{ unsubscribe_token }}
+
+[redis]
+LOCATION: {{ cache_location }}
+LIFETIME: 86400
+LIFETIME_404: 60
+
+[celery]
+BROKER_URL: {{ celery_broker_url }}
+RESULT_BACKEND: {{ celery_result_url }}
+
+[oauth]
+OK_KEY: {{ ok_key }}
+OK_SECRET: {{ ok_secret }}
+OK_PUBLIC: {{ ok_public }}
+YA_ID: {{ ya_id }}
+YA_SECRET: {{ ya_secret }}
+VK_ID: {{ vk_id }}
+VK_SECRET: {{ vk_secret }}
+
+[metrics]
+GTM_ID: GTM-WJGX4HZ
+YANDEX_ID: 49976830
+
+[options]
+SHOW_GAMES: True
+SHOW_WINNERS: True

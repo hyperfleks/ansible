@@ -1,0 +1,4 @@
+domain: prometheus.tech-mail.ru
+
+remote_write: http://victoria-vip.lab:8480/insert/1/prometheus/api/v1/write
+

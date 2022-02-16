@@ -1,0 +1,16 @@
+app_name: cups
+gunicorn_port: 37168
+domain: cups.mail.ru
+
+database_host: "{{ mysql_master_host }}"
+database_user: cups
+database_password: "{{ cups_vault_database_password }}"
+
+secret_key: "{{ cups_vault_secret_key }}"
+internal_token: "{{ cups_vault_internal_token }}"
+
+celery_broker_url: "redis://{{ redis_master_host }}:6379/0"
+redis_cache_url: "redis://{{ redis_master_host }}:6379/1"
+
+email_host: mxx.tp.smailru.net
+email_port: 25

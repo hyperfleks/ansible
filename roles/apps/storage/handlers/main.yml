@@ -1,0 +1,12 @@
+---
+- name: "restart tornado"
+  service:
+    name: "{{ app_name }}"
+    state: restarted
+
+- name: "restart celery"
+  when: restart_celery is defined and restart_celery and celery_units is defined
+  service:
+    name: "{{ app_name }}-{{ item }}"
+    state: restarted
+  with_items: "{{ celery_units }}"

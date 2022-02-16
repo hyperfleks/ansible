@@ -1,0 +1,24 @@
+---
+- name: "reload iptables"
+  service:
+    name: iptables
+    state: reloaded
+  notify:
+   - "restart sysctl"
+   - "reset dmesg"
+
+- name: "reload ip6tables"
+  service:
+    name: ip6tables
+    state: reloaded
+  notify:
+#  - restart sysctl
+   - "reset dmesg"
+
+- name: "restart sysctl"
+  service:
+    name: systemd-sysctl
+    state: restarted
+
+- name: "reset dmesg"
+  shell: dmesg -c

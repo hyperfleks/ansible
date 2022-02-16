@@ -1,0 +1,54 @@
+[common]
+DEBUG: False
+MEDIA_ROOT: {{ media_dir }}
+SITE_URL: https://{{ domain }}
+BUSINESS_NAME: TechnoCup
+HTTPS_ONLY: True
+
+[secret]
+SECRET_KEY: {{ secret_key }}
+
+[database]
+ENGINE: django.db.backends.mysql
+HOST: {{ database_host }}
+PORT: 3306
+USER: {{ database_user }}
+PASSWORD: {{ database_password }}
+NAME: {{ app_name }}
+
+[logging]
+LOG_FILE: /var/log/{{ app_name }}/{{ app_name }}.log
+
+[smtp]
+HOST: {{ email_host }}
+PORT: {{ email_port }}
+SENDER_EMAIL: {{ app_email }}
+UNSUBSCRIBE_TOKEN: {{ unsubscribe_token }}
+
+[redis]
+LOCATION: {{ cache_location }}
+LIFETIME: 86400
+LIFETIME_404: 60
+
+[celery]
+BROKER_URL: {{ celery_broker_url }}
+RESULT_BACKEND: {{ celery_result_url }}
+
+[metrics]
+GTM_ID: GTM-N6JP56Z
+YANDEX_ID: 40134455
+
+[codeforces]
+HOST: http://codeforces.com
+SECRET: {{ codeforces_secret }}
+
+[oauth]
+VK_KEY: 5826739
+VK_SECRET: {{ vk_secret }}
+FB_KEY: 703447383157758
+FB_SECRET: {{ fb_secret }}
+
+[cupsapi]
+CUPS_TOKEN: f46cee641780e51c9c1c1c8b8d8e8b58
+CUPS_CLIENT: technocup
+CUPS_URL: https://cups.mail.ru

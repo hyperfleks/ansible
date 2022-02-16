@@ -1,0 +1,62 @@
+{% extends "iptables_base.j2" %}
+
+{% block iptables_filter_extra_chains_def %}
+{% if "linux/lsyncd" in role_names %}
+:SSH - [0:0]
+{% endif %}
+{% if "stores/mysql" in role_names and mysql_server_role is defined and mysql_server_role == "master" %}
+:MYSQL - [0:0]
+{% endif %}
+{% if "stores/redis" in role_names and redis_master_host is defined %}
+:REDIS - [0:0]
+{% endif %}
+{% endblock %}
+
+{% block pre_base_iptables_filter_input_chain %}
+{% if "linux/lsyncd" in role_names %}
+-A INPUT -p tcp -m tcp --dport 22 -j SSH
+-A INPUT -p tcp -m tcp --dport 873 -j SSH
+{% endif %}
+{% if "stores/mysql" in role_names and mysql_server_role is defined and mysql_server_role == "master" %}
+-A INPUT -p tcp -m tcp --dport 3306 -j MYSQL
+{% endif %}
+{% if "stores/redis" in role_names and redis_master_host is defined %}
+-A INPUT -p tcp -m tcp --dport 6379 -j REDIS
+{% endif %}
+{% endblock %}
+
+{% block iptables_filter_input_chain %}
+{% if "linux/snmp" in role_names and snmp_collector_host is defined %}
+-A INPUT -s {{ snmp_collector_host }}/32 -p udp -m udp --dport 161 -m comment --comment "" -j ACCEPT
+{% endif %}
+{% if "tools/zabbix" in role_names %}
+-A INPUT -s {{ infra0_ip }} -p tcp -m tcp --dport 10050 -m comment --comment "" -j ACCEPT
+-A INPUT -s {{ infra2_ip }} -p tcp -m tcp --dport 10050 -m comment --comment "" -j ACCEPT
+{% endif %}
+{% if "tools/bacula" in role_names and bacula_dir_host is defined %}
+-A INPUT -s {{ bacula_dir_host }}/32 -p tcp -m tcp --dport 9102 -m comment --comment "" -j ACCEPT
+-A INPUT -s {{ bacula_dir_host }}/32 -p tcp -m tcp --dport 3306 -m comment --comment "" -j ACCEPT
+{% endif %}
+{% endblock %}
+
+{% block iptables_filter_extra_chains_content %}
+{% if "linux/lsyncd" in role_names %}
+{% for host in groups[main_group] %}
+{% if inventory_hostname != host %}
+-A SSH -s {{ hostvars[host].ansible_default_ipv4.address }}/32 -m comment --comment "{{ hostvars[host].inventory_hostname }}:lsyncd" -j ACCEPT
+{% endif %}
+{% endfor %}
+{% endif %}
+{% if "stores/mysql" in role_names and mysql_server_role is defined and mysql_server_role == "master" %}
+{% for host in groups[main_group] %}{% if inventory_hostname != host %}
+-A MYSQL -s {{ hostvars[host].ansible_default_ipv4.address }}/32 -m comment --comment "{{ hostvars[host].inventory_hostname }}:mysql" -j ACCEPT
+{% endif %}{% endfor %}
+{% endif %}
+{% if "stores/redis" in role_names and redis_master_host is defined %}
+{% for host in groups[main_group] %}
+{% if inventory_hostname != host %}
+-A REDIS -s {{ hostvars[host].ansible_default_ipv4.address }}/32 -m comment --comment "{{ hostvars[host].inventory_hostname }}:redis" -j ACCEPT
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endblock %}

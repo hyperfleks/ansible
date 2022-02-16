@@ -1,0 +1,68 @@
+[common]
+DEBUG: False
+MEDIA_ROOT: {{ media_dir }}
+SITE_URL: https://{{ domain }}
+BUSINESS_NAME: Highload Cup
+DAV_STORAGE_URL: https://storage.aicups.ru/
+
+[locales]
+ENABLE: True
+
+[secret]
+SECRET_KEY: {{ secret_key }}
+STORAGE_KEY: {{ storage_key }}
+
+[database]
+ENGINE: django.db.backends.mysql
+HOST: {{ database_host }}
+PORT: 3306
+NAME: {{ database_user }}
+USER: {{ app_name }}
+PASSWORD: {{ database_password }}
+
+[logging]
+LOG_FILE: /var/log/{{ app_name }}/{{ app_name }}.log
+
+[smtp]
+HOST: {{ email_host }}
+PORT: {{ email_port }}
+SENDER_EMAIL: {{ app_email }}
+UNSUBSCRIBE_TOKEN: {{ unsubscribe_token }}
+
+[memcached]
+LOCATION: 127.0.0.1:11211
+LIFETIME: 86400
+LIFETIME_404: 60
+INVALIDATE_BY_SIGNALS: False
+
+[metrics]
+GOOGLE_ID: GTM-W99FQHV
+YANDEX_ID: 45527637
+MAIL_ID:
+
+[celery]
+BROKER_URL: {{ celery_broker_url }}
+RESULT_BACKEND: {{ celery_broker_url }}
+
+[oauth]
+VK_APP_ID: {{ vk_app_id }}
+VK_SECRET: {{ vk_secret }}
+FACEBOOK_APP_ID: {{ fb_app_id }}
+FACEBOOK_SECRET: {{ fb_secret }}
+IT_MAIL_KEY: {{ it_mail_key }}
+IT_MAIL_SECRET: {{ it_mail_secret }}
+
+[storage]
+URL: https://stor.highloadcup.ru
+APP_ID: {{ storage_app_id }}
+APP_SECRET: {{ storage_app_secret }}
+
+[codehub]
+URL: http://hub.aicups.ru
+APP_ID: {{ hub_app_id }}
+APP_SECRET: {{ hub_app_secret }}
+
+[cupsapi]
+CUPS_TOKEN: {{ cups_api_token }}
+CUPS_CLIENT: rhc
+CUPS_URL: https://cups.mail.ru

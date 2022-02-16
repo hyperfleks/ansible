@@ -1,0 +1,9 @@
+{{ app_name }}-gunicorn
+{% if celery_units is defined %}
+{% for celery in celery_units %}
+{{ app_name }}-{{ celery }}
+{% endfor %}
+{% endif %}
+{{ app_name }}-searchd
+{{ app_name }}-indexer.timer
+{{ app_name }}-centrifugo

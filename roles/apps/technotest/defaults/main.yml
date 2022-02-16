@@ -1,0 +1,17 @@
+app_name: technotest
+gunicorn_port: 37039
+domain: test.tech-mail.ru
+app_email: support@park.mail.ru
+
+secret_key: "{{ ttest_vault_secret_key }}"
+unsubscribe_token: "{{ ttest_vault_unsubscribe_token }}"
+
+database_host: "{{ mysql_master_host }}"
+database_user: technotest
+database_password: "{{ ttest_vault_database_password }}"
+
+redis_cache_url: "redis://{{ redis_master_host }}:6379/1"
+celery_broker_url: "redis://{{ redis_master_host }}:6379/0"
+
+email_host: mxx.tp.smailru.net
+email_port: 25

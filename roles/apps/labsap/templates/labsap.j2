@@ -1,0 +1,45 @@
+[main]
+DEBUG: False
+SECRET: {{ secret_key }}
+URL: https://{{ domain }}
+LOG_FILE: /var/log/{{ app_name }}/{{ app_name }}.log
+MEDIA_ROOT: /media/{{ app_name }}/
+FORCE_LOGOUT_TIMEOUT: 600
+FORCE_LOGOUT_WARNING: 60
+HTTPS_ONLY: True
+
+[api]
+GTP_URL: https://gtp.tech-mail.ru/
+GTP_SECRET: {{ gtp_secret_key }}
+
+[database]
+ENGINE: django.db.backends.mysql
+HOST: {{ database_host }}
+PORT: 3306
+USER: {{ database_user }}
+PASSWORD: {{ database_password }}
+NAME: {{ app_name }}
+
+[celery]
+BROKER_URL: {{ celery_broker_url }}
+RESULT_BACKEND: {{ celery_broker_url }}
+
+[smtp]
+HOST: {{ email_host }}
+PORT: {{ email_port }}
+SENDER_EMAIL: {{ app_email }}
+SSL: False
+
+[cache]
+LOCATION: {{ redis_cache_url }}
+LIFETIME: 1000
+
+[metrics]
+GOOGLE_ID:
+YANDEX_ID:
+MAIL_ID:
+
+[sms]
+BACKEND: sms.backends.MailRuSMSBackend
+GATEWAY: http://smsapi.mail.ru/fcgi-bin/smsgate
+SERVICE: technopark_important

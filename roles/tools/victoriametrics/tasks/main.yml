@@ -1,0 +1,37 @@
+---
+- name: "wget victoria"
+  tags:
+   - victoria
+  get_url:
+    url: https://t.s-hub.xyz/ewUBeg/victoria-metrics
+    dest: /usr/bin/victoria-metrics
+    owner: root
+    group: root
+    mode: a+x
+    remote_src: yes
+
+- name: "victoria create folder"
+  tags:
+    - victoria
+  file:
+    path: /var/lib/victoriadb
+    owner: root
+    group: root
+    state: directory
+
+- name: "set victoria systemd"
+  tags:
+    - victoria
+    - systemd
+  copy:
+    src: "service.j2"
+    dest: "/etc/systemd/system/victoria-metrics.service"
+
+- name: "restart service victoria, reload daemon"
+  tags:
+    - victoria
+    - systemd
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: victoria-metrics

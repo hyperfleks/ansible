@@ -1,0 +1,49 @@
+---
+- name: "set iptables config"
+  tags:
+   - init
+   - iptables
+  when: '"linux/chost" not in role_names'
+  template:
+    src: iptables.j2
+    dest: /etc/iptables/rules.v4
+    owner: root
+    group: root
+    mode: 0600
+    backup: yes
+#  notify:
+#   - "reload iptables"
+
+- name: "set ip6tables config"
+  tags:
+   - init
+   - iptables
+  template:
+    src: ip6tables.j2
+    dest: /etc/iptables/rules.v6
+    owner: root
+    group: root
+    mode: 0600
+    backup: yes
+#  notify:
+#   - "reload ip6tables"
+
+#- name: "enable and start iptables"
+#  tags:
+#   - init
+#   - iptables
+#  systemd:
+##    daemon_reload: yes
+#    name: iptables
+#    enabled: yes
+#    state: started
+
+#- name: "enable and start ip6tables"
+#  tags:
+#   - init
+#   - iptables
+#  systemd:
+##    daemon_reload: yes
+#    name: ip6tables
+#    enabled: yes
+#    state: started

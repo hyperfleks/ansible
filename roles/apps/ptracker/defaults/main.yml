@@ -1,0 +1,23 @@
+app_name: ptracker
+gunicorn_port: 37092
+domain: tracker.cups.mail.ru
+app_email: tracker@cups.mail.ru
+
+static_dir: /opt/ptracker/static
+media_dir: /media/ptracker
+
+secret_key: "{{ ptracker_vault_secret_key }}"
+recaptcha_private_key: "{{ ptracker_vault_recaptcha_private_key }}"
+recaptcha_public_key: "{{ ptracker_vault_recaptcha_public_key }}"
+
+database_host: "{{ mysql_master_host }}"
+database_user: ptracker
+database_password: "{{ ptracker_vault_database_password }}"
+
+email_host: mxx.tp.smailru.net
+
+celery_broker_url: "redis://{{ redis_master_host }}:6379/0"
+celery_result_url: "redis://{{ redis_master_host }}:6379/0"
+
+itmailru_client_key: "{{ ptracker_vault_itmailru_client_key }}"
+itmailru_client_secret: "{{ ptracker_vault_itmailru_client_secret }}"

@@ -1,0 +1,46 @@
+---
+- name: "Install repo"
+  tags:
+   - letsencrypt
+   - certbot
+  apt_repository:
+    repo: ppa:certbot/certbot
+
+- name: "install certbot"
+  tags:
+   - letsencrypt
+   - certbot
+  apt:
+    name: certbot
+    state: present
+    update_cache: yes
+
+- name: "install certbot python3"
+  tags:
+   - letsencrypt
+   - certbot
+  apt:
+    name: python3-certbot-nginx
+    state: present
+    update_cache: yes
+
+- name: "install certbot cloudflare"
+  tags:
+   - letsencrypt
+   - certb
+  apt:
+    name: python3-certbot-dns-cloudflare
+    state: present
+    update_cache: yes
+# https://community.letsencrypt.org/t/certbot-broken-need-help-to-fix-it/97643
+
+#- name: "copy ssl cert"
+#  tags:
+#   - init
+#   - nginx
+#  file:
+#    state: directory
+#    dest: /etc/nginx/sites-enabled
+#    mode: 0755
+#    owner: root
+#    group: root

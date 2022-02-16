@@ -1,0 +1,35 @@
+{
+  "secret": "{{ centrifugo_secret_key }}",
+  "api_key": "{{ centrifugo_api_key }}",
+  "debug": "false",
+  "log_level": "error",
+  "admin": false,
+  "port": {{ centrifugo_port }},
+  "namespaces": [
+    {
+      "name": "public",
+      "anonymous": true,
+      "publish": true,
+      "presence": true,
+      "join_leave": true,
+      "history_size": 10,
+      "history_lifetime": 30
+    },
+    {
+      "name": "messages",
+      "presence": true,
+      "join_leave": true,
+      "history_recover": true,
+      "history_size": 20,
+      "history_lifetime": 30
+    },
+    {
+      "name": "d-edit",
+      "presence": true,
+      "join_leave": true,
+      "history_recover": true,
+      "history_size": 20,
+      "history_lifetime": 30
+    }
+  ]
+}

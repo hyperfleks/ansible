@@ -1,0 +1,80 @@
+---
+- name: "install rpm"
+  ignore_errors: "{{ ansible_check_mode }}"
+  tags:
+   - app
+   - release
+  yum:
+    name: "{{ actual_package }}"
+    state: present
+    update_cache: yes
+  notify:
+   - "restart daemon"
+
+- name: "set project config"
+  tags:
+   - app
+   - config
+  template:
+    src: "{{ app_name }}.j2"
+    dest: "/etc/{{ app_name }}/{{ app_name }}.conf"
+  notify:
+   - "restart daemon"
+
+- name: "enable and start daemon"
+  tags:
+   - app
+  systemd:
+    daemon_reload: yes
+    name: "{{ app_name }}"
+    enabled: yes
+    state: started
+
+- name: "set media dir"
+  tags:
+   - app
+  file:
+    state: directory
+    dest: "/media/{{ app_name }}"
+    mode: "{{ media_mode|default('0755') }}"
+    owner: "{{ app_name }}"
+    group: "{{ app_name }}"
+
+- name: "add to docker group"
+  tags:
+    - app
+  ignore_errors: "{{ ansible_check_mode }}"
+  user:
+    name: "{{ app_name }}"
+    state: present
+    groups: docker
+
+- name: "set external net"
+  tags:
+    - docker
+    - nets
+  docker_network:
+    name: cr-ext
+    state: present
+    ipam_options:
+      subnet: '192.168.33.0/24'
+      gateway: '192.168.33.1'
+    driver_options:
+      com.docker.network.bridge.enable_ip_masquerade: '0'
+      com.docker.network.bridge.name: 'cr-ext'
+
+- name: "set internal net"
+  tags:
+    - docker
+    - nets
+  docker_network:
+    name: cr-int
+    state: present
+    ipam_options:
+      subnet: '192.168.34.0/24'
+      gateway: '192.168.34.1'
+    driver_options:
+      com.docker.network.bridge.enable_ip_masquerade: '0'
+      com.docker.network.bridge.name: 'cr-int'
+
+# TODO: set zabbix units.j2

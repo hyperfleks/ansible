@@ -1,0 +1,132 @@
+---
+- name: "test icmp"
+  tags:
+   - cbase
+  ping:
+
+- name: "make sure we have a 'sudo' group"
+  group:
+    name: sudo
+
+- name: "create logical volumes"
+  when: lvs is defined
+  tags:
+   - cbase
+   - lvsfs
+  ignore_errors: "{{ ansible_check_mode }}"
+  lvol:
+    vg: "{{ item.vg | default('system') }}"
+    lv: "{{ item.lv }}"
+    size: "{{ item.size }}"
+    shrink: no
+  with_items: "{{ lvs }}"
+  register: lvsstat
+
+- name: "format logical volumes fs"
+  when: lvs is defined
+  ignore_errors: "{{ ansible_check_mode }}"
+  tags:
+   - cbase
+   - lvsfs
+  filesystem:
+    fstype: "{{ item.fs | default('ext4') }}"
+    dev: "/dev/mapper/{{ item.vg | default('system') }}-{{ item.lv }}"
+    resizefs: yes
+    opts: "{{ item.opts | default('') }}"
+  with_items: "{{ lvs }}"
+  register: fsstat
+
+- name: "mount permanent logical volume"
+  when: lvs is defined
+  ignore_errors: "{{ ansible_check_mode }}"
+  tags:
+   - cbase
+   - lvsfs
+  mount:
+    path: "{{ item.path }}"
+    src: "/dev/mapper/{{ item.vg | default('system') }}-{{ item.lv }}"
+    fstype: "{{ item.fs | default('ext4') }}"
+    dump: 1
+    passno: 2
+    state: mounted
+  with_items: "{{ lvs }}"
+
+- name: "allow 'sudo' group to have passwordless sudo"
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%sudo'
+    line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+    validate: 'visudo -cf %s'
+
+- name: "changing TZ to Moscow"
+  command: timedatectl set-timezone Europe/Moscow
+
+- name: "install base packages"
+  tags:
+   - cbase
+   - flow
+  ignore_errors: yes
+  apt:
+    name: ['htop', 'telnet', 'sysstat',
+           'wget', 'tcpdump', 'lsof', 'iotop', 'iftop', 'strace', 'python3-apt', 'python-apt-common',
+           'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common',
+           'net-tools', 'atop', 'iptables', 'python3-pip', 'quagga', 'quagga-doc',
+           'iptables-persistent', 'netfilter-persistent', 'python-mysqldb', 'jq', 'nfs-common',
+           'bird', 'open-iscsi', 'jq', 'grepcidr', 'softflowd', 'prometheus-node-exporter'
+          ]
+    state: present
+
+- name: "update sysctl config"
+  tags:
+   - cbase
+   - sysctl
+  template:
+    src: sysctl.j2
+    dest: /etc/sysctl.conf
+  notify:
+   - "restart sysctl"
+
+- name: "set sshd config"
+  tags:
+   - cbase
+   - sshd
+  template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+  notify:
+   - "restart sshd"
+
+- name: "alets when login"
+  template:
+    src: ssh-tg.j2
+    dest: /etc/profile.d/ssh-telegram.sh
+    owner: root
+    group: root
+    mode: '0644'
+  when: telegram_alerts is defined and telegram_alerts
+# TODO: add telegram token/bot
+
+- name: "add default wheels"
+  tags:
+   - cbase
+   - wheels
+  user:
+    name: "{{ item }}"
+    state: present
+    group: sudo
+    append: yes
+    shell: /bin/bash
+  with_items: "{{ super_admins }}"
+
+- name: "set ssh keys"
+  tags:
+   - cbase
+   - wheels
+  ignore_errors: "{{ ansible_check_mode }}"
+  authorized_key:
+    user: "{{ item }}"
+    state: present
+    key: "{{ lookup('file', 'files/sshkeys/{{ item }}.pub') }}"
+    exclusive: yes
+  with_items: "{{ super_admins }}"

@@ -1,0 +1,35 @@
+[common]
+DEBUG=False
+MEDIA_ROOT=/media/{{ app_name }}
+SITE_URL=https://{{ domain }}
+METRICS=True
+HTTPS_ONLY=True
+
+[database]
+ENGINE=django.db.backends.mysql
+NAME={{ app_name }}
+USER={{ database_user }}
+PASSWORD={{ database_password }}
+HOST={{ database_host }}
+PORT=3306
+
+[smtp]
+HOST={{ email_host }}
+PORT={{ email_port }}
+USE_TLS=False
+SENDER_EMAIL={{ app_email }}
+
+[secret]
+APP_KEY={{ secret_key }}
+UNSUBSCRIBE_TOKEN={{ unsubscribe_token }}
+
+[logging]
+LOG_FILE=/var/log/{{ app_name }}/{{ app_name }}.log
+
+[cache]
+REDIS_URL={{ redis_cache_url }}
+
+[celery]
+BROKER_URL={{ celery_broker_url }}
+RESULT_BACKEND={{ celery_broker_url }}
+USERS_TOP=10

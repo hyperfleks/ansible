@@ -1,0 +1,16 @@
+[Unit]
+Description=Victoria
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=root
+Group=root
+Type=simple
+ExecStart=/usr/bin/victoria-metrics \
+-storageDataPath /var/lib/victoriadb \
+-retentionPeriod 12 \
+-loggerLevel ERROR
+
+[Install]
+WantedBy=multi-user.target

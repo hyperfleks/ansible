@@ -1,0 +1,81 @@
+# {{ ansible_managed }}
+
+limit_req_zone $binary_remote_addr zone={{ app_name }}:10m rate=10r/s;
+geo $maintenance {
+    default 1;
+    5.61.239.166/31 0; # HL site&stor
+    5.61.239.134/31 0; # HL H1-2
+    5.61.239.136/31 0; # HL H3-4
+#    194.186.63.20/32 0; # TP-VPN
+    185.6.244.0/23 0; # Office
+#    194.186.63.0/24 0; # VPN
+    95.163.254.1/32 0; # xcr1
+    95.163.254.2/32 0; # xcr2
+    95.163.254.3/32 0; # xcr3
+    95.163.254.4/32 0; # xcr4
+    95.163.254.5/32 0; # xcr5
+    95.163.254.6/32 0; # xcr6
+    95.163.254.7/32 0; # xcr7
+    95.163.254.8/32 0; # xcr8
+    95.163.254.9/32 0; # xcr9
+    95.163.254.10/32 0; # xcr10
+    5.61.239.168/32 0; # cr1
+    5.61.239.169/32 0; # cr2
+    5.61.239.170/32 0; # cr3
+    5.61.239.171/32 0; # cr4
+    5.61.239.172/32 0; # cr5
+}
+
+server {
+    listen 80;
+    listen 443 ssl;
+    server_name {{ domain }};
+
+    access_log /var/log/nginx/{{ domain }}.access.log timed;
+    error_log /var/log/nginx/{{ domain }}.error.log;
+
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_certificate /etc/nginx/ssl/wildcard.highloadcup.ru.crt;
+    ssl_certificate_key /etc/nginx/ssl/wildcard.highloadcup.ru.key;
+    ssl_session_cache shared:SSL:10m;
+    ssl_ciphers 'ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!CAMELLIA:!DES:!MD5:!PSK:!RC4';
+    ssl_prefer_server_ciphers on;
+    ssl_session_timeout 10m;
+
+    if ($http_host != {{ domain }}) {
+        return 404;
+    }
+
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_hide_header UserId;
+    client_max_body_size 5g;
+
+    location / {
+        #if ($maintenance = 1) {
+        #    return 403 '{"errors": [{"code": "DENIED", "message": "Сейчас идут технические работы"}]}';
+        #}
+        limit_req zone={{ app_name }} burst=50;
+        proxy_pass http://127.0.0.1:{{ proxy_port }};
+    }
+
+    location /ssadmin {
+        limit_req zone={{ app_name }} burst=50;
+        proxy_pass http://127.0.0.1:{{ proxy_port }};
+        allow {{ mailru_hq_net }}; # Mail.Ru HQ
+        allow {{ mailru_vpn_net }}; # Mail.Ru VPN
+        deny all;
+    }
+
+
+    #location /static {
+    #    alias /opt/{{ app_name }}/static;
+    #    access_log off;
+    #}
+
+    location /media {
+        alias /media/{{ app_name }};
+        access_log off;
+    }
+}

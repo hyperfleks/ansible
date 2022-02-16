@@ -1,0 +1,24 @@
+app_name: technocup
+gunicorn_port: 37088
+domain: technocup.mail.ru
+app_email: info@technocup.mail.ru
+
+media_dir: /media/technocup
+secret_key: "{{ technocup_vault_secret_key }}"
+unsubscribe_token: "{{ technocup_vault_unsubscribe_token }}"
+
+database_host: "{{ mysql_master_host }}"
+database_user: technocup
+database_password: "{{ technocup_vault_database_password }}"
+
+email_host: mxx.tp.smailru.net
+email_port: 25
+
+cache_location: "redis://{{ redis_master_host }}:6379/2"
+celery_broker_url: "redis://{{ redis_master_host }}:6379/1"
+celery_result_url: "redis://{{ redis_master_host }}:6379/1"
+
+codeforces_secret: "{{ technocup_vault_codeforces_secret }}"
+vk_secret: "{{ technocup_vault_vk_secret }}"
+fb_secret: "{{ technocup_vault_fb_secret }}"
+cups_token: "{{ technocup_vault_cups_token }}"

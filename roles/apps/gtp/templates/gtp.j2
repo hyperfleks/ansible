@@ -1,0 +1,107 @@
+[project]
+name: gtp
+alias: gtp
+
+[common]
+site_name: GTP
+site_url: https://gtp.tech-mail.ru
+secret_key: {{ secret_key }}
+debug: False
+toolbar: False
+https_only=True
+media_directory: /media/gtp
+auth_method: base
+counters: True
+selection_reminders_check: 15
+
+[logging]
+path: /var/log/gtp/django_error.log
+
+[database]
+ENGINE: django.db.backends.mysql
+HOST: {{ database_host }}
+PORT: 3306
+USER: {{ database_user }}
+PASSWORD: {{ database_password }}
+NAME: {{ app_name }}
+
+[recaptcha]
+public_key: {{ recaptcha_public_key }}
+secret_key: {{ recaptcha_secret_key }}
+
+[sphinx]
+server: 127.0.0.1
+port: {{ sphinx_port }}
+
+[celery]
+broker_url: {{ celery_broker_url }}
+
+[sap]
+url: http://sap1.lab.smailru.net
+SECRET: {{ sap_secret_key }}
+NEW_URL: {{ sap_url }}
+
+[cache]
+redis: {{ redis_cache_url }}
+
+[mailing]
+email_host: {{ email_host }}
+email_port: {{ email_port }}
+email_user:
+email_password:
+from_email: support@park.mail.ru
+site_admin_emails:
+sms_gate: http://smsapi.mail.ru/fcgi-bin/smsgate
+sms_gatetype: http://smsapi.mail.ru/fcgi-bin/smsgatetype
+
+[system]
+system_user_id: 16274
+
+[dashboard]
+secret: technopark_tv
+
+[api]
+send_signals: false
+salt: 3uRW7aGbcTIttCs9ozfbgh0edc3xfWInC9icAidLBLeZWi6GTNefmhuCzBgm8H7a
+telegram_key: pO7BkgO1jFgsKssicKgQbI8kFZUViF5qWwVYkHT9gDTO8dzHHA4f13XxUMMba2Sw
+
+[mobile]
+salt: {{ mobile_salt }}
+apn_cert_file=/etc/gtp/push_labcore_2019.pem
+apn_cert_password=LabCore2019
+apn_sandbox=True
+apn_payload_badge=0
+
+[talk]
+do_not_send: false
+
+[files_upload]
+temp_dir: /media/gtp/tmp
+forbidden_domains: smsapi.mail.ru
+forbidden_ips: 217.69.139.179,94.100.180.179
+max_file_upload_size: 20971520
+
+[achievements]
+notify_admins: true
+
+[technotest]
+url={{ ttest_url }}
+load_users={{ ttest_load_users }}
+get_student_rates={{ ttest_student_rates }}
+
+[centrifuge]
+url=/centrifugo
+api_key={{ centrifugo_api_key }}
+secret={{ centrifugo_secret_key }}
+token_expire=21600
+timeout=1
+enabled=True
+
+[excursions]
+salt=T7ZTar8NAQ8QAQz44vx1m8pZkaYSsPZg
+
+[internal]
+URL: {{ internal_url }}
+CLIENT: gtp
+TOKEN: {{ internal_token }}
+SYNC_ENABLED: True

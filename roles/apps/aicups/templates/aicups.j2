@@ -1,0 +1,61 @@
+[common]
+DEBUG: False
+MEDIA_ROOT: /media/{{ app_name }}
+SITE_URL: https://{{ domain }}
+SANDBOX_GAMES_PER_SESSION: 50
+DAV_STORAGE_URL: https://storage.aicups.ru/
+FINAL_WAVE_MULTIPLE: 1
+
+[secret]
+SECRET_KEY: {{ secret_key }}
+
+[database]
+ENGINE: django.db.backends.mysql
+HOST: {{ database_host }}
+PORT: 3306
+USER: {{ app_name }}
+PASSWORD: {{ database_password }}
+NAME: {{ app_name }}
+
+[logging]
+LOG_FILE: /var/log/{{ app_name }}/{{ app_name }}.log
+
+[smtp]
+HOST: {{ email_host }}
+PORT: 25
+SENDER_EMAIL: {{ app_email }}
+UNSUBSCRIBE_TOKEN: {{ unsubscribe_token }}
+
+[redis]
+LOCATION: {{ redis_location }}
+LIFETIME: 86400
+LIFETIME_404: 60
+INVALIDATE_BY_SIGNALS: False
+
+[metrics]
+GOOGLE_ID: UA-62753080-10
+YANDEX_ID: 46111200
+MAIL_ID:
+
+[celery]
+BROKER_URL: {{ celery_broker_url }}
+CELERY_RESULT_BACKEND: {{ celery_broker_url }}
+
+[oauth]
+VK_APP_ID: {{ vk_app_id }}
+VK_SECRET: {{ vk_app_secret }}
+FACEBOOK_APP_ID: {{ fb_app_id }}
+FACEBOOK_SECRET: {{ fb_app_secret }}
+IT_MAIL_KEY: {{ it_mail_key }}
+IT_MAIL_SECRET: {{ it_mail_secret }}
+
+[telegram]
+TELEGRAM_BOT_TOKEN:
+TELEGRAM_BOT_GROUP_IDS:
+TELEGRAM_BOT_NOTIFICATION_PERIOD: 60
+
+[cupsapi]
+CUPS_TOKEN: {{ cups_token }}
+CUPS_CLIENT: {{ cups_client }}
+CUPS_URL: https://cups.mail.ru
+SYNC_ENABLED: True

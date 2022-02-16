@@ -1,0 +1,29 @@
+app_name: igc
+gunicorn_port: 37159
+domain: gamescup.ru
+app_email: info@okgamescup.ru
+
+static_dir: /opt/igc/static
+media_dir: /media/igc
+
+secret_key: "{{ igc_vault_secret_key }}"
+
+database_host: "{{ mysql_master_host }}"
+database_user: igc
+database_password: "{{ igc_vault_database_password }}"
+
+cache_location: "redis://{{ redis_master_host }}:6379/5"
+celery_broker_url: "redis://{{ redis_master_host }}:6379/4"
+celery_result_url: "redis://{{ redis_master_host }}:6379/4"
+
+email_host: mxx.tp.smailru.net
+email_port: 25
+unsubscribe_token: "{{ igc_vault_unsubscribe_token }}"
+
+ok_key: "{{ igc_vault_ok_key }}"
+ok_secret: "{{ igc_vault_ok_secret }}"
+ok_public: "{{ igc_vault_ok_public }}"
+ya_id: "{{ igc_vault_ya_id }}"
+ya_secret: "{{ igc_vault_ya_secret }}"
+vk_id: "{{ igc_vault_vk_id }}"
+vk_secret: "{{ igc_vault_vk_secret }}"

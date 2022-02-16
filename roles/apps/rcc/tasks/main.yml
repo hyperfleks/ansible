@@ -1,0 +1,45 @@
+---
+- name: "install rpm"
+  ignore_errors: "{{ ansible_check_mode }}"
+  tags:
+   - app
+   - init
+   - release
+  yum:
+    name: "{{ actual_package }}"
+    state: present
+    update_cache: yes
+  notify:
+   - "restart gunicorn"
+   - "restart celery"
+
+- name: "migrate db"
+  tags:
+   - app
+   - init
+   - release
+  ignore_errors: "{{ ansible_check_mode }}"
+  command: "{{ app_name }} migrate"
+  when: migrate is defined and migrate
+
+- name: "enable and start gunicorn"
+  tags:
+   - app
+   - init
+  systemd:
+    daemon_reload: yes
+    name: "{{ app_name }}-gunicorn"
+    enabled: yes
+    state: started
+
+- name: "enable and start celery"
+  when: celery_units is defined
+  tags:
+   - app
+   - init
+  systemd:
+    daemon_reload: yes
+    name: "{{ app_name }}-{{ item }}"
+    enabled: yes
+    state: started
+  with_items: "{{ celery_units }}"
